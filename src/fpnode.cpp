@@ -1,32 +1,56 @@
 #include "fpnode.h"
 
-FPNode::FPNode(int attribute, FPNode * parent) {
-    this->attribute = attribute;
-    this->parent    = parent;
-    this->sibling   = NULL;
-    this->count     = 1;
+FPNode::FPNode(int item, FPNode * parent) {
+    this->item = item;
+    this->parent = parent;
+    this->count = (item != ROOT_ITEM) ? 1 : 0; // When it's the root item, initialize the count to 0.
+
+    // Also let the parent know it has a new child, when it is a valid parent.
+    if (this->parent != NULL)
+        this->parent->addChild(this);
 }
 
 FPNode::~FPNode() {
-    // Nothing to be done.
+    // Delete all child nodes.
+    foreach (FPNode * child, this->children)
+        delete child;
+    this->children.clear();
 }
 
-bool FPNode::hasChild(int attribute) {
-    return this->children.contains(attribute);
+bool FPNode::hasChild(int item) const {
+    return this->children.contains(item);
 }
 
-FPNode * FPNode::getChild(int attribute) {
-    if (this->hasChild(attribute))
-        return this->children.value(attribute);
+FPNode * FPNode::getChild(int item) const {
+    if (this->children.contains(item))
+        return this->children.value(item);
     else
         return NULL;
 }
 
+QHash<int, FPNode*> FPNode::getChildren() const {
+    return this->children;
+}
+
 void FPNode::addChild(FPNode * child) {
-    this->children.insert(child->getAttribute(), child);
+    this->children.insert(child->getItem(), child);
 }
 
 void FPNode::removeChild(FPNode * child) {
-    if (this->hasChild(attribute))
-        this->children.remove(child->getAttribute());
+    if (this->children.contains(item))
+        this->children.remove(child->getItem());
+}
+
+
+QDebug operator<<(QDebug dbg, const FPNode &node) {
+    if (node.getItem() == ROOT_ITEM)
+        dbg.nospace() << "(NULL)";
+    else {
+        QString item, count;
+        item.sprintf("%  5d", node.getItem());
+        count.sprintf("%03d", node.getCount());
+        dbg.nospace() << "" << item.toStdString().c_str() << " (" << count.toStdString().c_str() << ")";
+    }
+
+    return dbg.nospace();
 }

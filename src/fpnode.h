@@ -2,38 +2,45 @@
 #define FPNODE_H
 
 #include <QHash>
+#include <QDebug>
+#include <QMetaType>
+#include <QString>
 
-#define NULL_ATTRIBUTE -1
+#define ROOT_ITEM -1
 
 class FPNode {
 protected:
     FPNode * parent;
-    FPNode * sibling;
-    QHash<int, FPNode *> children;
+    QHash<int, FPNode*> children;
     int count;
-    int attribute;
+    int item;
 
 public:
-    FPNode(int attribute, FPNode * parent = NULL);
+    FPNode(int item = ROOT_ITEM, FPNode* parent = NULL);
     ~FPNode();
 
-    bool isRoot();
-    bool isLeaf() { return this->children.size() == 0; }
+    bool isRoot() const { return this->item == ROOT_ITEM; }
+    bool isLeaf() const { return this->children.size() == 0; }
 
-    int getAttribute() { return this->attribute; }
-    FPNode * getParent() { return this->parent; }
-    FPNode * getSibling() { return this->sibling; }
-    FPNode * getChild(int attribute);
-    bool hasChild(int attribute);
+    int getItem() const { return this->item; }
+    int getCount() const { return this->count; }
+    FPNode* getParent() const { return this->parent; }
+    FPNode* getChild(int item) const;
+    QHash<int, FPNode*> getChildren() const;
+    bool hasChild(int item) const;
+    int numChildren() const { return this->children.size(); }
 
     void addChild(FPNode * child);
     void removeChild(FPNode * child);
-    void setAttribute(int attribute) { this->attribute = attribute; };
+    void setitem(int item) { this->item = item; };
     void setParent(FPNode * parent) { this->parent = parent; }
-    void setSibling(FPNode * sibling) { this->sibling = sibling; }
 
     void increment() { this->count++; }
     void decrement() { this->count--; }
 };
+
+Q_DECLARE_METATYPE(FPNode);
+
+QDebug operator<<(QDebug dbg, const FPNode &node);
 
 #endif // FPNODE_H
