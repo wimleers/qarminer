@@ -109,7 +109,23 @@ void FPTree::removeNodeFromItemPath(FPNode* node) {
 // Other.
 
 QDebug operator<<(QDebug dbg, const FPTree &tree) {
-    return dbg.nospace() << dumpHelper(*(tree.getRoot())).toStdString().c_str() << endl;
+    // Tree.
+    dbg.nospace() << "TREE" << endl;
+    dbg.nospace() << dumpHelper(*(tree.getRoot())).toStdString().c_str();
+
+    // Item paths.
+    dbg.nospace() << "ITEM PATHS" << endl;
+    FPNodeList path;
+    ItemNameHash* itemNames = tree.getItemNames();
+    foreach (Item item, tree.getItems()) {
+        path = tree.getItemPath(item);
+        dbg.nospace() << " - item " << (*itemNames)[item].toStdString().c_str() << ":";
+        foreach (FPNode* node, path)
+            dbg.nospace() << *node;
+        dbg.nospace() << endl;
+    }
+
+    return dbg.nospace();
 }
 
 QString dumpHelper(const FPNode &node, QString prefix) {

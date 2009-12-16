@@ -26,6 +26,7 @@ public:
     // Accessors.
     FPNode* getRoot() const { return this->root; }
     bool hasItemPath(Item item) const;
+    QList<Item> getItems() const { return this->itemPaths.keys(); }
     FPNodeList getItemPath(Item item) const;
     bool itemPathContains(Item item, FPNode* node) const;
     ItemNameHash* getItemNames() const { return this->itemNames; }
