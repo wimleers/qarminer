@@ -37,11 +37,9 @@ int main(int argc, char *argv[]) {
     qDebug() << "item path for 4:" << tree->getItemPath(4);
     delete tree;
 */
-    qDebug() << "FPGROWTH TEST";
-    FPGrowth * growth = new FPGrowth(QString("input"));
-    delete growth;
 
-    cout << "FINISHED" << endl;
+    FPGrowth * growth = new FPGrowth(QString("input"), 10);
+    delete growth;
 
     return 0;
 }

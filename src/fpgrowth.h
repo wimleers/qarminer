@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include <QSet>
 #include <QString>
 #include "arffparser.h"
 #include "fptree.h"
@@ -15,9 +16,10 @@ protected:
     ItemNameHash itemNames;
     ItemCountHash supportCounts;
     FPTree* tree;
+    int minimumSupport;
 
 public:
-    FPGrowth(QString filename);
+    FPGrowth(QString filename, int minimumSupport);
 
 private slots:
     void parsedTransaction(Transaction transaction);
