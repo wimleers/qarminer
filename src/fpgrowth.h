@@ -12,7 +12,9 @@ class FPGrowth : public QObject {
     Q_OBJECT
 protected:
     ARFFParser parser;
-    QHash<Item, QPair<ItemName, ItemCount> > supportCount;
+    ItemNameHash itemNames;
+    ItemCountHash supportCounts;
+    FPTree* tree;
 
 public:
     FPGrowth(QString filename);

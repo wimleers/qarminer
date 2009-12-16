@@ -12,9 +12,9 @@
 
 class FPTree {
 protected:
-    FPNode * root;
-    // Hashmap of list of FPNode*s.
-    QHash<int, ItemPath> itemPaths;
+    FPNode* root;
+    QHash<Item, FPNodeList> itemPaths;
+    ItemNameHash * itemNames;
 
     void addNodeToItemPath(FPNode* node);
     void removeNodeFromItemPath(FPNode* node);
@@ -23,22 +23,24 @@ public:
     FPTree();
     ~FPTree();
 
+    // Accessors.
     FPNode* getRoot() const { return this->root; }
+    bool hasItemPath(Item item) const;
+    FPNodeList getItemPath(Item item) const;
+    bool itemPathContains(Item item, FPNode* node) const;
+    ItemNameHash* getItemNames() const { return this->itemNames; }
 
-    bool hasItemPath(int item) const;
-    ItemPath getItemPath(int item) const;
-    bool itemPathContains(int item, FPNode* node) const;
-
+    // Modifiers.
     void addTransaction(Transaction transaction);
-
-    FPTree* getConditionalFPTreeFor(int item);
+    FPTree* getConditionalFPTreeFor(Item item);
+    void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
 };
 
 Q_DECLARE_METATYPE(FPTree);
 
 QDebug operator<<(QDebug dbg, const FPTree &tree);
 QString dumpHelper(const FPNode &node, QString prefix = "");
-QDebug operator<<(QDebug dbg, const ItemPath &itempath);
+QDebug operator<<(QDebug dbg, const FPNodeList &itempath);
 QDebug operator<<(QDebug dbg, const Transaction &transaction);
 
 #endif // FPTREE_H

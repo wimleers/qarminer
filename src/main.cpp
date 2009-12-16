@@ -11,7 +11,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
-
+/*
     qDebug() << "FPNODE TEST";
     FPNode * root = new FPNode(ROOT_ITEM);
     FPNode * firstChild = new FPNode(3, root);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     qDebug() << "item path for 1:" << tree->getItemPath(1);
     qDebug() << "item path for 4:" << tree->getItemPath(4);
     delete tree;
-
+*/
     qDebug() << "FPGROWTH TEST";
     FPGrowth * growth = new FPGrowth(QString("input"));
     delete growth;

@@ -11,28 +11,28 @@ FPTree::~FPTree() {
     delete root;
 }
 
-bool FPTree::hasItemPath(int item) const {
+bool FPTree::hasItemPath(Item item) const {
     return this->itemPaths.contains(item);
 }
 
-ItemPath FPTree::getItemPath(int item) const {
+FPNodeList FPTree::getItemPath(Item item) const {
     if (this->itemPaths.contains(item))
         return this->itemPaths[item];
     else {
-        ItemPath empty;
+        FPNodeList empty;
         return empty;
     }
 }
 
-bool FPTree::itemPathContains(int item, FPNode* node) const {
+bool FPTree::itemPathContains(Item item, FPNode* node) const {
     return (this->itemPaths.contains(item) && this->itemPaths[item].contains(node));
 }
 
 void FPTree::addTransaction(Transaction transaction) {
     // The initial current node is the root node.
-    FPNode * currentNode = root;
+    FPNode* currentNode = root;
 
-    FPNode * nextNode;
+    FPNode* nextNode;
     int item;
 
     for (int i = 0; i < transaction.size(); i++) {
@@ -47,6 +47,7 @@ void FPTree::addTransaction(Transaction transaction) {
         else {
             // Create a new node and add it as a child of the current node.
             nextNode = new FPNode(item, currentNode);
+            nextNode->setItemNames(this->getItemNames());
             // Update the item path to include the new node.
             this->addNodeToItemPath(nextNode);
         }
@@ -58,7 +59,7 @@ void FPTree::addTransaction(Transaction transaction) {
     }
 }
 
-FPTree* FPTree::getConditionalFPTreeFor(int item) {
+FPTree* FPTree::getConditionalFPTreeFor(Item item) {
 /*
     // When this node is being deleted, let the tree it is part of let this know
     // so the tree can update its item paths.
@@ -73,7 +74,7 @@ FPTree* FPTree::getConditionalFPTreeFor(int item) {
 // Protected methods.
 
 void FPTree::addNodeToItemPath(FPNode* node) {
-    QList<FPNode*> itemPath;
+    FPNodeList itemPath;
 
     int item = node->getItem();
 
@@ -91,11 +92,11 @@ void FPTree::addNodeToItemPath(FPNode* node) {
  * item paths stay up-to-date.
  */
 void FPTree::removeNodeFromItemPath(FPNode* node) {
-    int item = node->getItem();
+    Item item = node->getItem();
 
     if (this->itemPaths.contains(item) && this->itemPaths[item].contains(node)) {
         // Get the current item path.
-        ItemPath itemPath = this->itemPaths[item];
+        FPNodeList itemPath = this->itemPaths[item];
         // Update it.
         itemPath.removeAll(node);
         // And insert it (will overwrite the existing value).
@@ -133,7 +134,7 @@ QString dumpHelper(const FPNode &node, QString prefix) {
     return s;
 }
 
-QDebug operator<<(QDebug dbg, const ItemPath &itemPath) {
+QDebug operator<<(QDebug dbg, const FPNodeList &itemPath) {
     dbg.nospace() << "[size=" << itemPath.size() << "]";
 
     for (int i = 0; i < itemPath.size(); i++) {

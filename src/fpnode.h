@@ -8,8 +8,6 @@
 
 #include "typedefs.h"
 
-#define ROOT_ITEM -1
-
 class FPNode {
 private:
     static unsigned int lastNodeID;
@@ -18,12 +16,13 @@ private:
 protected:
     unsigned int ID;
     FPNode* parent;
-    QHash<int, FPNode*> children;
+    ItemFPNodeHash children;
     int count;
     int item;
+    ItemNameHash* itemNames;
 
 public:
-    FPNode(int item = ROOT_ITEM, FPNode* parent = NULL);
+    FPNode(Item item = ROOT_ITEM, FPNode* parent = NULL);
     ~FPNode();
 
     // Accessors.
@@ -33,18 +32,20 @@ public:
     int getItem() const { return this->item; }
     int getCount() const { return this->count; }
     FPNode* getParent() const { return this->parent; }
-    FPNode* getChild(int item) const;
-    QHash<int, FPNode*> getChildren() const;
-    bool hasChild(int item) const;
+    FPNode* getChild(Item item) const;
+    ItemFPNodeHash getChildren() const;
+    bool hasChild(Item item) const;
     int numChildren() const { return this->children.size(); }
+    ItemNameHash* getItemNames() const { return this->itemNames; }
 
     // Modifiers.
-    void addChild(FPNode * child);
+    void addChild(FPNode* child);
     void removeChild(FPNode * child);
-    void setitem(int item) { this->item = item; };
-    void setParent(FPNode * parent) { this->parent = parent; }
+    void setitem(Item item) { this->item = item; };
+    void setParent(FPNode* parent) { this->parent = parent; }
     void increment() { this->count++; }
     void decrement() { this->count--; }
+    void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
 };
 
 Q_DECLARE_METATYPE(FPNode);
