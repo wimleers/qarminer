@@ -115,14 +115,13 @@ QDebug operator<<(QDebug dbg, const FPTree &tree) {
 
     // Item paths.
     dbg.nospace() << "ITEM PATHS" << endl;
-    FPNodeList path;
+    FPNodeList itemPath;
     ItemNameHash* itemNames = tree.getItemNames();
     foreach (Item item, tree.getItems()) {
-        path = tree.getItemPath(item);
-        dbg.nospace() << " - item " << (*itemNames)[item].toStdString().c_str() << ":";
-        foreach (FPNode* node, path)
-            dbg.nospace() << *node;
-        dbg.nospace() << endl;
+        itemPath = tree.getItemPath(item);
+        dbg.nospace() << " - item path for "
+                      << (*itemNames)[item].toStdString().c_str()
+                      << ": " << itemPath << endl;
     }
 
     return dbg.nospace();
@@ -155,7 +154,7 @@ QDebug operator<<(QDebug dbg, const FPNodeList &itemPath) {
 
     for (int i = 0; i < itemPath.size(); i++) {
         if (i > 0)
-            dbg.nospace() << ",";
+            dbg.nospace() << "->";
         dbg.nospace() << *(itemPath[i]);
     }
 
