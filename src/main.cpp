@@ -21,14 +21,19 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "FPROOT TEST";
     FPTree * tree = new FPTree();
-    QList<int> t1, t2, t3;
+    Transaction t1, t2, t3;
     t1 << 1 << 4 << 8;
-    t2 << 2 << 37 << 345;
+    t2 << 2 << 37 << 345 << 4;
     t3 << 1 << 4 << 48;
     tree->addTransaction(t1);
     tree->addTransaction(t2);
     tree->addTransaction(t3);
     qDebug() << *tree;
+    qDebug() << "transaction 1:" << t1;
+    qDebug() << "transaction 2:" << t2;
+    qDebug() << "transaction 3:" << t3;
+    qDebug() << "item path for 1:" << tree->getItemPath(1);
+    qDebug() << "item path for 4:" << tree->getItemPath(4);
     delete tree;
 
     cout << "FINISHED" << endl;

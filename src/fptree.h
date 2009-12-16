@@ -10,13 +10,17 @@
 
 #include "fpnode.h"
 
+typedef QList<FPNode*> ItemPath;
+typedef QList<int> Transaction;
+
 class FPTree {
 protected:
     FPNode * root;
     // Hashmap of list of FPNode*s.
-    QHash<int, QList<FPNode*> > itemPaths;
+    QHash<int, ItemPath> itemPaths;
 
-    void updateItemPath(FPNode * node);
+    void addNodeToItemPath(FPNode* node);
+    void removeNodeFromItemPath(FPNode* node);
 
 public:
     FPTree();
@@ -24,12 +28,18 @@ public:
 
     FPNode * getRoot() const { return this->root; }
 
-    void addTransaction(QList<int> transaction);
+    bool hasItemPath(int item) const;
+    ItemPath getItemPath(int item) const;
+    bool itemPathContains(int item, FPNode* node) const;
+
+    void addTransaction(Transaction transaction);
 };
 
 Q_DECLARE_METATYPE(FPTree);
 
 QDebug operator<<(QDebug dbg, const FPTree &tree);
 QString dumpHelper(const FPNode &node, QString prefix = "");
+QDebug operator<<(QDebug dbg, const ItemPath &itempath);
+QDebug operator<<(QDebug dbg, const Transaction &transaction);
 
 #endif // FPTREE_H
