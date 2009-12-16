@@ -3,15 +3,12 @@
 
 #include <QHash>
 #include <QPair>
-#include <QList>
 #include <QDebug>
 #include <QMetaType>
 #include <QString>
 
+#include "typedefs.h"
 #include "fpnode.h"
-
-typedef QList<FPNode*> ItemPath;
-typedef QList<int> Transaction;
 
 class FPTree {
 protected:
@@ -26,13 +23,15 @@ public:
     FPTree();
     ~FPTree();
 
-    FPNode * getRoot() const { return this->root; }
+    FPNode* getRoot() const { return this->root; }
 
     bool hasItemPath(int item) const;
     ItemPath getItemPath(int item) const;
     bool itemPathContains(int item, FPNode* node) const;
 
     void addTransaction(Transaction transaction);
+
+    FPTree* getConditionalFPTreeFor(int item);
 };
 
 Q_DECLARE_METATYPE(FPTree);

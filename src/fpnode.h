@@ -6,6 +6,8 @@
 #include <QMetaType>
 #include <QString>
 
+#include "typedefs.h"
+
 #define ROOT_ITEM -1
 
 class FPNode {

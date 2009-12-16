@@ -57,12 +57,17 @@ void FPTree::addTransaction(Transaction transaction) {
         nextNode = NULL;
     }
 }
+
+FPTree* FPTree::getConditionalFPTreeFor(int item) {
 /*
     // When this node is being deleted, let the tree it is part of let this know
     // so the tree can update its item paths.
     if (this->tree != NULL)
         this->tree->removeNodeFromItemPath(this);
 */
+
+}
+
 
 //------------------------------------------------------------------------------
 // Protected methods.

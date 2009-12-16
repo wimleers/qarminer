@@ -3,6 +3,7 @@
 #include "arffparser.h"
 #include "fpnode.h"
 #include "fptree.h"
+#include "fpgrowth.h"
 
 #include <iostream>
 #include <QDebug>
@@ -35,6 +36,10 @@ int main(int argc, char *argv[]) {
     qDebug() << "item path for 1:" << tree->getItemPath(1);
     qDebug() << "item path for 4:" << tree->getItemPath(4);
     delete tree;
+
+    qDebug() << "FPGROWTH TEST";
+    FPGrowth * growth = new FPGrowth(QString("input"));
+    delete growth;
 
     cout << "FINISHED" << endl;
 

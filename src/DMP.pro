@@ -6,12 +6,15 @@ QT -= gui
 TARGET = DMP
 CONFIG += console
 CONFIG -= app_bundle
-CONFIG+= x86
+CONFIG += x86
 TEMPLATE = app
 SOURCES += main.cpp \
     arffparser.cpp \
     fpnode.cpp \
-    fptree.cpp
+    fptree.cpp \
+    fpgrowth.cpp
 HEADERS += arffparser.h \
     fpnode.h \
-    fptree.h
+    fptree.h \
+    fpgrowth.h \
+    typedefs.h
