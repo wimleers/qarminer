@@ -28,6 +28,28 @@ bool FPTree::itemPathContains(Item item, FPNode* node) const {
     return (this->itemPaths.contains(item) && this->itemPaths[item].contains(node));
 }
 
+QList<FPNodeList> FPTree::calculatePrefixPaths(Item item) const {
+    QList<FPNodeList> prefixPaths;
+    FPNodeList prefixPath;
+    FPNode* node;
+
+    FPNodeList leafNodes = this->getItemPath(item);
+    foreach (FPNode* leafNode, leafNodes) {
+        // Build the prefix path starting from the given leaf node, by
+        // traversing up the tree.
+        node = leafNode;
+        prefixPath.prepend(node);
+        while ((node = node->getParent()) != NULL)
+            prefixPath.prepend(node);
+
+        // Store the built prefix path & clear it, so we can calculate the next.
+        prefixPaths.append(prefixPath);
+        prefixPath.clear();
+    }
+
+    return prefixPaths;
+}
+
 void FPTree::addTransaction(Transaction transaction) {
     // The initial current node is the root node.
     FPNode* currentNode = root;

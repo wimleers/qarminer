@@ -30,6 +30,7 @@ public:
     FPNodeList getItemPath(Item item) const;
     bool itemPathContains(Item item, FPNode* node) const;
     ItemNameHash* getItemNames() const { return this->itemNames; }
+    QList<FPNodeList> calculatePrefixPaths(Item item) const;
 
     // Modifiers.
     void addTransaction(Transaction transaction);

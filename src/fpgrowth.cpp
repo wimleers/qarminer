@@ -28,8 +28,10 @@ FPGrowth::FPGrowth(QString filename, int minimumSupport) {
              << "-" << "Time complexity: [not yet available].";
     ItemList orderedSuffixes = this->determineSuffixOrder();
     qDebug() << "ordered suffixes:" << orderedSuffixes;
+    QList<FPNodeList> prefixPaths;
     foreach (Item item, orderedSuffixes) {
-        qDebug() << "prefix paths for" << item << ":" << "TODO";
+        prefixPaths = this->tree->calculatePrefixPaths(item);
+        qDebug() << "prefix paths for" << item << ":" << prefixPaths;
     }
 
 }
