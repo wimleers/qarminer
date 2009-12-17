@@ -15,13 +15,18 @@ protected:
     ARFFParser parser;
     ItemNameHash itemNames;
     ItemCountHash supportCounts;
+    ItemList itemsSortedBySupportCount;
     FPTree* tree;
     int minimumSupport;
+
+    Transaction optimizeTransaction(Transaction transaction) const;
+    void calculateItemsSortedBySupportCount();
+    ItemList determineSuffixOrder() const;
 
 public:
     FPGrowth(QString filename, int minimumSupport);
 
-private slots:
+protected slots:
     void parsedTransaction(Transaction transaction);
 };
 
