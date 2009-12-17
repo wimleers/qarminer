@@ -66,3 +66,15 @@ QDebug operator<<(QDebug dbg, const FPNode &node) {
 
     return dbg.nospace();
 }
+
+QDebug operator<<(QDebug dbg, const FPNodeList &itemPath) {
+    dbg.nospace() << "[size=" << itemPath.size() << "]";
+
+    for (int i = 0; i < itemPath.size(); i++) {
+        if (i > 0)
+            dbg.nospace() << "->";
+        dbg.nospace() << *(itemPath[i]);
+    }
+
+    return dbg.nospace();
+}

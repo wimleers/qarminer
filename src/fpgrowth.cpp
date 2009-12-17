@@ -28,12 +28,15 @@ FPGrowth::FPGrowth(QString filename, int minimumSupport) {
              << "-" << "Time complexity: [not yet available].";
     ItemList orderedSuffixes = this->determineSuffixOrder();
     qDebug() << "ordered suffixes:" << orderedSuffixes;
-    QList<FPNodeList> prefixPaths;
-    foreach (Item item, orderedSuffixes) {
-        prefixPaths = this->tree->calculatePrefixPaths(item);
-        qDebug() << "prefix paths for" << item << ":" << prefixPaths;
-    }
 
+    QList<ItemList> frequentItemsets = this->generateFrequentItemsets(this->tree);
+    qDebug() << "frequent itemsets:" << frequentItemsets.size();
+    NamedItemList nfis;
+    foreach (ItemList fis, frequentItemsets) {
+        nfis.items = fis;
+        nfis.itemNames = this->itemNames;
+        qDebug() << nfis;
+    }
 }
 
 
@@ -143,6 +146,110 @@ ItemList FPGrowth::determineSuffixOrder() const {
     return this->itemsSortedBySupportCount;
 }
 
+QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffix) {
+    NamedItemList namedSuffix;
+    namedSuffix.items = suffix;
+    namedSuffix.itemNames = this->itemNames;
+    qDebug() << "---------------------------------generateFrequentItemsets()" << namedSuffix;
+    QList<ItemList> frequentItemsets;
+    QList<ItemList> prefixPaths;
+
+    // First determine the suffix order for the items in this particular tree,
+    // based on the list that contains *all* items in this data set, sorted by
+    // support count.
+    ItemList orderedSuffixItems;
+    ItemList itemsInTree = ctree->getItems();
+    foreach (Item item, this->itemsSortedBySupportCount)
+        if (itemsInTree.contains(item))
+            orderedSuffixItems.append(item);
+
+    // Now iterate over each of the ordered suffix items and generate frequent
+    // itemsets!
+    foreach (Item suffixItem, orderedSuffixItems) {
+        NamedItem namedSuffixItem;
+        namedSuffixItem.item = suffixItem;
+        namedSuffixItem.itemNames = this->itemNames;
+        if (suffix.size() == 0)
+            qDebug() << "==========ROOT==========";
+        qDebug() << "suffix item" << namedSuffixItem << ctree->getItemSupport(suffixItem) << (ctree->getItemSupport(suffixItem) >= this->minimumSupport);
+        if (ctree->getItemSupport(suffixItem) >= this->minimumSupport) {
+            // The current suffix item, when prepended to the received suffix,
+            // is the next frequent itemset. Additionally, it will serve as the
+            // next suffix.
+            ItemList frequentItemset;
+            frequentItemset.append(suffixItem);
+            frequentItemset.append(suffix);
+
+            // Add the new frequent itemset to the list of frequent itemsets.
+            frequentItemsets.append(frequentItemset);
+            NamedItemList namedBlah;
+            namedBlah.items = frequentItemset;
+            namedBlah.itemNames = this->itemNames;
+            qDebug() << "\t\t\t\t new frequent itemset:" << namedBlah;
+
+            // Calculate the prefix paths for the current suffix item.
+            prefixPaths = ctree->calculatePrefixPaths(suffixItem);
+            qDebug() << "prefix paths:";
+            foreach (ItemList blah, prefixPaths) {
+                NamedItemList namedBlah;
+                namedBlah.items = blah;
+                namedBlah.itemNames = this->itemNames;
+                qDebug() << "\t" << namedBlah;
+            }
+
+
+            // Calculate the support counts for the prefix paths.
+            ItemCountHash prefixPathsSupportCounts = FPTree::calculateSupportCountsForPrefixPaths(prefixPaths);
+
+            // Remove items from the prefix paths based on the support counts of
+            // the items *within* the prefix paths. Also remove the suffix item.
+            QList<ItemList> filteredPrefixPaths;
+            ItemList prefixPath, filteredPrefixPath;
+            Item item;
+            for (int i = 0; i < prefixPaths.size(); i++) {
+                prefixPath = prefixPaths[i];
+                for (int j = 0; j < prefixPath.size() - 1; j++) {
+                    item = prefixPath[j];
+                    if (prefixPathsSupportCounts[item] >= this->minimumSupport)
+                        filteredPrefixPath.append(item);
+                }
+                if (filteredPrefixPath.size() > 0)
+                    filteredPrefixPaths.append(filteredPrefixPath);
+                filteredPrefixPath.clear();
+            }
+            qDebug() << "filtered prefix paths: ";
+            foreach (ItemList blah, filteredPrefixPaths) {
+                NamedItemList namedBlah;
+                namedBlah.items = blah;
+                namedBlah.itemNames = this->itemNames;
+                qDebug() << "\t" << namedBlah;
+            }
+
+            // If no prefix paths remain after filtering, we won't be able to
+            // generate any further frequent item sets.
+            if (filteredPrefixPaths.size() > 0) {
+                // Build the conditional FP-tree for these prefix paths, by creating
+                // a new FP-tree and pretending the prefix paths are transactions.
+                FPTree* cfptree = new FPTree();
+                cfptree->setItemNames(&this->itemNames);
+                foreach (ItemList prefixPath, filteredPrefixPaths)
+                    cfptree->addTransaction(prefixPath);
+                //            qDebug() << *cfptree;
+
+                // Attempt to generate more frequent itemsets, with the current
+                // frequent itemset as the suffix.
+                frequentItemsets.append(this->generateFrequentItemsets(cfptree, frequentItemset));
+
+                delete cfptree;
+            }
+        }
+        else
+            qDebug() << "support count of" << suffixItem << "in the initial tree is less than minimum support";
+    }
+    qDebug() << "------END------------------------generateFrequentItemsets()" << suffix;
+
+    return frequentItemsets;
+}
 
 //------------------------------------------------------------------------------
 // Protected slots.

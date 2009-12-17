@@ -12,7 +12,8 @@ SOURCES += main.cpp \
     arffparser.cpp \
     fpnode.cpp \
     fptree.cpp \
-    fpgrowth.cpp
+    fpgrowth.cpp \
+    typedefs.cpp
 HEADERS += arffparser.h \
     fpnode.h \
     fptree.h \

@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 
+#include "typedefs.h"
 #include "arffparser.h"
 #include "fpnode.h"
 #include "fptree.h"

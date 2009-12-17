@@ -30,19 +30,21 @@ public:
     FPNodeList getItemPath(Item item) const;
     bool itemPathContains(Item item, FPNode* node) const;
     ItemNameHash* getItemNames() const { return this->itemNames; }
-    QList<FPNodeList> calculatePrefixPaths(Item item) const;
+    ItemCount getItemSupport(Item item) const;
+    QList<ItemList> calculatePrefixPaths(Item item) const;
 
     // Modifiers.
     void addTransaction(Transaction transaction);
     FPTree* getConditionalFPTreeFor(Item item);
     void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
+
+    // Static (class) methods.
+    static ItemCountHash calculateSupportCountsForPrefixPaths(QList<ItemList> prefixPaths);
 };
 
 Q_DECLARE_METATYPE(FPTree);
 
 QDebug operator<<(QDebug dbg, const FPTree &tree);
 QString dumpHelper(const FPNode &node, QString prefix = "");
-QDebug operator<<(QDebug dbg, const FPNodeList &itempath);
-QDebug operator<<(QDebug dbg, const Transaction &transaction);
 
 #endif // FPTREE_H

@@ -28,9 +28,16 @@ bool FPTree::itemPathContains(Item item, FPNode* node) const {
     return (this->itemPaths.contains(item) && this->itemPaths[item].contains(node));
 }
 
-QList<FPNodeList> FPTree::calculatePrefixPaths(Item item) const {
-    QList<FPNodeList> prefixPaths;
-    FPNodeList prefixPath;
+ItemCount FPTree::getItemSupport(Item item) const {
+    ItemCount supportCount = 0;
+    foreach (FPNode* node, this->itemPaths[item])
+        supportCount += node->getCount();
+    return supportCount;
+}
+
+QList<ItemList> FPTree::calculatePrefixPaths(Item item) const {
+    QList<ItemList> prefixPaths;
+    ItemList prefixPath;
     FPNode* node;
 
     FPNodeList leafNodes = this->getItemPath(item);
@@ -38,9 +45,9 @@ QList<FPNodeList> FPTree::calculatePrefixPaths(Item item) const {
         // Build the prefix path starting from the given leaf node, by
         // traversing up the tree.
         node = leafNode;
-        prefixPath.prepend(node);
-        while ((node = node->getParent()) != NULL)
-            prefixPath.prepend(node);
+        prefixPath.prepend(node->getItem());
+        while ((node = node->getParent()) != NULL && node->getItem() != ROOT_ITEM)
+            prefixPath.prepend(node->getItem());
 
         // Store the built prefix path & clear it, so we can calculate the next.
         prefixPaths.append(prefixPath);
@@ -48,6 +55,16 @@ QList<FPNodeList> FPTree::calculatePrefixPaths(Item item) const {
     }
 
     return prefixPaths;
+}
+
+ItemCountHash FPTree::calculateSupportCountsForPrefixPaths(QList<ItemList> prefixPaths) {
+    ItemCountHash supportCounts;
+
+    foreach (ItemList list, prefixPaths)
+        foreach (Item item, list)
+            supportCounts[item] = (supportCounts.contains(item)) ? supportCounts[item] + 1 : 1;
+
+    return supportCounts;
 }
 
 void FPTree::addTransaction(Transaction transaction) {
@@ -169,29 +186,4 @@ QString dumpHelper(const FPNode &node, QString prefix) {
     }
 
     return s;
-}
-
-QDebug operator<<(QDebug dbg, const FPNodeList &itemPath) {
-    dbg.nospace() << "[size=" << itemPath.size() << "]";
-
-    for (int i = 0; i < itemPath.size(); i++) {
-        if (i > 0)
-            dbg.nospace() << "->";
-        dbg.nospace() << *(itemPath[i]);
-    }
-
-    return dbg.nospace();
-}
-
-QDebug operator<<(QDebug dbg, const Transaction &transaction) {
-    dbg.nospace() << "[size=" << transaction.size() << "] {";
-
-    for (int i = 0; i < transaction.size(); i++) {
-        if (i > 0)
-            dbg.nospace() << ", ";
-        dbg.nospace() << transaction[i];
-    }
-    dbg.nospace() << "}";
-
-    return dbg.nospace();
 }

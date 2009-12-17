@@ -6,8 +6,8 @@
 #include <QSet>
 #include <QString>
 #include "arffparser.h"
-#include "fptree.h"
 #include "fpnode.h"
+#include "fptree.h"
 
 class FPGrowth : public QObject {
     Q_OBJECT
@@ -22,6 +22,8 @@ protected:
     Transaction optimizeTransaction(Transaction transaction) const;
     void calculateItemsSortedBySupportCount();
     ItemList determineSuffixOrder() const;
+
+    QList<ItemList> generateFrequentItemsets(FPTree* tree, ItemList suffix = ItemList());
 
 public:
     FPGrowth(QString filename, int minimumSupport);
