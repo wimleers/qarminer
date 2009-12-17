@@ -7,16 +7,18 @@
 #include <QList>
 #include <QString>
 
-
 // Generic data mining types.
-typedef uint16_t Item; // Supports 65536 *different* items. Change to uint32_t or uint64_t to support more.
-#define ROOT_ITEM 65535 // Largest supported value for uint16_t.
+typedef uint16_t ItemID; // Supports 65536 *different* items. Change to uint32_t or uint64_t to support more.
+#define ROOT_ITEMID 65535 // Largest supported value for uint16_t.
 typedef QString ItemName;
 typedef uint16_t ItemCount; // Supports 65536 *total* items. Change to uint32_t or uint64_t to support more.
+struct ItemStruct { ItemID id; ItemCount count; };
+typedef ItemStruct Item;
 
 // Generic data mining container types.
-typedef QHash<Item, ItemName> ItemNameHash;
-typedef QHash<Item, ItemCount> ItemCountHash;
+typedef QHash<ItemID, ItemName> ItemNameHash;
+typedef QHash<ItemID, ItemCount> ItemCountHash;
+typedef QList<ItemID> ItemIDList;
 typedef QList<Item> ItemList;
 typedef QList<ItemCount> ItemCountList;
 typedef QList<Item> Transaction;
@@ -24,8 +26,12 @@ typedef QList<Item> Transaction;
 // Generic data mining types that support named output.
 struct NamedItemStruct { Item item; ItemNameHash itemNames; };
 typedef NamedItemStruct NamedItem;
+struct NamedItemIDStruct { ItemID itemID; ItemNameHash itemNames; };
+typedef NamedItemIDStruct NamedItemID;
 struct NamedItemListStruct { ItemList items; ItemNameHash itemNames; };
 typedef NamedItemListStruct NamedItemList;
+struct NamedItemIDListStruct { ItemIDList itemIDs; ItemNameHash itemNames; };
+typedef NamedItemIDListStruct NamedItemIDList;
 struct NamedTransactionStruct { Transaction transaction; ItemNameHash itemNames; };
 typedef NamedTransactionStruct NamedTransaction;
 
@@ -34,15 +40,17 @@ typedef NamedTransactionStruct NamedTransaction;
 class FPNode; // Work around cyclical dependency.
 
 // FP-growth specific container types.
-typedef QHash<Item, FPNode*> ItemFPNodeHash;
+typedef QHash<ItemID, FPNode*> ItemIDFPNodeHash;
 typedef QList<FPNode*> FPNodeList;
 
 
 
 // QDebug() streaming output operators.
+QDebug operator<<(QDebug dbg, const NamedItemID &namedItem);
 QDebug operator<<(QDebug dbg, const NamedItem &namedItem);
 QDebug operator<<(QDebug dbg, const Transaction &transaction);
 QDebug operator<<(QDebug dbg, const NamedTransaction &namedTransaction);
+QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList);
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList);
 
 #endif // TYPEDEFS_H

@@ -1,4 +1,10 @@
+
+// Disable debugging output by defining QT_NO_DEBUG_OUTPUT.
+#define QT_NO_DEBUG_OUTPUT
+#define QT_NO_WARNING_OUTPUT
+
 #include <QCoreApplication>
+#include <QDebug>
 
 #include "typedefs.h"
 #include "arffparser.h"
@@ -6,9 +12,6 @@
 #include "fptree.h"
 #include "fpgrowth.h"
 
-#include <iostream>
-#include <QDebug>
-using namespace std;
 
 int main(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
@@ -39,7 +42,7 @@ int main(int argc, char *argv[]) {
     delete tree;
 */
 
-    FPGrowth * growth = new FPGrowth(QString("input"), 2);
+    FPGrowth * growth = new FPGrowth(QString("input"), 3);
     delete growth;
 
     return 0;

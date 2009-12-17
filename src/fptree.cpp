@@ -4,50 +4,73 @@
 // Public methods.
 
 FPTree::FPTree() {
-    root = new FPNode(ROOT_ITEM);
+    Item rootItem;
+    rootItem.id = ROOT_ITEMID;
+    rootItem.count = 0;
+    root = new FPNode(rootItem);
 }
 
 FPTree::~FPTree() {
     delete root;
 }
 
-bool FPTree::hasItemPath(Item item) const {
-    return this->itemPaths.contains(item);
+bool FPTree::hasItemPath(ItemID itemID) const {
+    return this->itemPaths.contains(itemID);
 }
 
-FPNodeList FPTree::getItemPath(Item item) const {
-    if (this->itemPaths.contains(item))
-        return this->itemPaths[item];
+FPNodeList FPTree::getItemPath(ItemID itemID) const {
+    if (this->itemPaths.contains(itemID))
+        return this->itemPaths[itemID];
     else {
         FPNodeList empty;
         return empty;
     }
 }
 
-bool FPTree::itemPathContains(Item item, FPNode* node) const {
-    return (this->itemPaths.contains(item) && this->itemPaths[item].contains(node));
+bool FPTree::itemPathContains(ItemID itemID, FPNode* node) const {
+    return (this->itemPaths.contains(itemID) && this->itemPaths[itemID].contains(node));
 }
 
-ItemCount FPTree::getItemSupport(Item item) const {
+ItemCount FPTree::getItemSupport(ItemID itemID) const {
     ItemCount supportCount = 0;
-    foreach (FPNode* node, this->itemPaths[item])
+    foreach (FPNode* node, this->itemPaths[itemID])
         supportCount += node->getCount();
     return supportCount;
 }
 
-QList<ItemList> FPTree::calculatePrefixPaths(Item item) const {
+/**
+ * Calculate prefix paths that end with a node that has the given ItemID. These
+ * nodes can be retrieved very quickly using the FPTree's itemPaths.
+ * A prefix path is a list of Items that reflects a path from the bottom of the
+ * tree to the root (but excluding the root), following along the path of an
+ * FPNode that has the ItemID itemID. Because it is a list of Items, it also
+ * includes both the ItemID and the ItemCount. The original ItemCount of the
+ * FPNode is erased and replaced by the ItemCount of the FPNode we began from,
+ * i.e. a node that has the ItemID itemID, because we're looking at only the
+ * paths that include this node.
+ */
+QList<ItemList> FPTree::calculatePrefixPaths(ItemID itemID) const {
     QList<ItemList> prefixPaths;
     ItemList prefixPath;
     FPNode* node;
+    ItemCount supportCount;
+    Item item;
 
-    FPNodeList leafNodes = this->getItemPath(item);
+    FPNodeList leafNodes = this->getItemPath(itemID);
     foreach (FPNode* leafNode, leafNodes) {
         // Build the prefix path starting from the given leaf node, by
         // traversing up the tree.
+        // Don't copy the item's original count, but the count of the leaf node
+        // instead, because we're looking at only the paths that include this
+        // leaf node.
         node = leafNode;
+        supportCount = leafNode->getCount();
         prefixPath.prepend(node->getItem());
-        while ((node = node->getParent()) != NULL && node->getItem() != ROOT_ITEM)
-            prefixPath.prepend(node->getItem());
+        while ((node = node->getParent()) != NULL && node->getItemID() != ROOT_ITEMID) {
+            item = node->getItem();
+            item.count = supportCount;
+            prefixPath.prepend(item);
+        }
 
         // Store the built prefix path & clear it, so we can calculate the next.
         prefixPaths.append(prefixPath);
@@ -60,9 +83,9 @@ QList<ItemList> FPTree::calculatePrefixPaths(Item item) const {
 ItemCountHash FPTree::calculateSupportCountsForPrefixPaths(QList<ItemList> prefixPaths) {
     ItemCountHash supportCounts;
 
-    foreach (ItemList list, prefixPaths)
-        foreach (Item item, list)
-            supportCounts[item] = (supportCounts.contains(item)) ? supportCounts[item] + 1 : 1;
+    foreach (ItemList prefixPath, prefixPaths)
+        foreach (Item item, prefixPath)
+            supportCounts[item.id] = (supportCounts.contains(item.id)) ? supportCounts[item.id] + item.count : item.count;
 
     return supportCounts;
 }
@@ -72,16 +95,14 @@ void FPTree::addTransaction(Transaction transaction) {
     FPNode* currentNode = root;
 
     FPNode* nextNode;
-    int item;
+    Item item;
 
-    for (int i = 0; i < transaction.size(); i++) {
-        item = transaction.at(i);
-
-        if (currentNode->hasChild(item)) {
+    foreach (Item item, transaction) {
+        if (currentNode->hasChild(item.id)) {
             // There is already a node in the tree for the current transaction
-            // item, so reuse it: increment its count.
-            nextNode = currentNode->getChild(item);
-            nextNode->increment();
+            // item, so reuse it: increase its count.
+            nextNode = currentNode->getChild(item.id);
+            nextNode->increaseCount(item.count);
         }
         else {
             // Create a new node and add it as a child of the current node.
@@ -98,16 +119,6 @@ void FPTree::addTransaction(Transaction transaction) {
     }
 }
 
-FPTree* FPTree::getConditionalFPTreeFor(Item item) {
-/*
-    // When this node is being deleted, let the tree it is part of let this know
-    // so the tree can update its item paths.
-    if (this->tree != NULL)
-        this->tree->removeNodeFromItemPath(this);
-*/
-
-}
-
 
 //------------------------------------------------------------------------------
 // Protected methods.
@@ -115,15 +126,15 @@ FPTree* FPTree::getConditionalFPTreeFor(Item item) {
 void FPTree::addNodeToItemPath(FPNode* node) {
     FPNodeList itemPath;
 
-    int item = node->getItem();
+    ItemID itemID = node->getItemID();
 
     // If there already is an item path for this item, load it so it can be
     // updated.
-    if (this->itemPaths.contains(item))
-        itemPath = this->itemPaths[item];
+    if (this->itemPaths.contains(itemID))
+        itemPath = this->itemPaths[itemID];
 
     itemPath.append(node);
-    this->itemPaths.insert(item, itemPath);
+    this->itemPaths.insert(itemID, itemPath);
 }
 
 /**
@@ -131,15 +142,15 @@ void FPTree::addNodeToItemPath(FPNode* node) {
  * item paths stay up-to-date.
  */
 void FPTree::removeNodeFromItemPath(FPNode* node) {
-    Item item = node->getItem();
+    ItemID itemID = node->getItemID();
 
-    if (this->itemPaths.contains(item) && this->itemPaths[item].contains(node)) {
+    if (this->itemPaths.contains(itemID) && this->itemPaths[itemID].contains(node)) {
         // Get the current item path.
-        FPNodeList itemPath = this->itemPaths[item];
+        FPNodeList itemPath = this->itemPaths[itemID];
         // Update it.
         itemPath.removeAll(node);
         // And insert it (will overwrite the existing value).
-        this->itemPaths.insert(item, itemPath);
+        this->itemPaths.insert(itemID, itemPath);
     }
 }
 
@@ -156,10 +167,10 @@ QDebug operator<<(QDebug dbg, const FPTree &tree) {
     dbg.nospace() << "ITEM PATHS" << endl;
     FPNodeList itemPath;
     ItemNameHash* itemNames = tree.getItemNames();
-    foreach (Item item, tree.getItems()) {
-        itemPath = tree.getItemPath(item);
+    foreach (ItemID itemID, tree.getItemIDs()) {
+        itemPath = tree.getItemPath(itemID);
         dbg.nospace() << " - item path for "
-                      << (*itemNames)[item].toStdString().c_str()
+                      << (*itemNames)[itemID].toStdString().c_str()
                       << ": " << itemPath << endl;
     }
 

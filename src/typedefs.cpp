@@ -1,8 +1,12 @@
 #include "typedefs.h"
 
 
+QDebug operator<<(QDebug dbg, const NamedItemID &namedItemID) {
+    return dbg.space() << namedItemID.itemNames[namedItemID.itemID].toStdString().c_str();
+}
+
 QDebug operator<<(QDebug dbg, const NamedItem &namedItem) {
-    return dbg.space() << namedItem.itemNames[namedItem.item].toStdString().c_str();
+    return dbg.space() << namedItem.itemNames[namedItem.item.id].toStdString().c_str() << ":" << namedItem.item.count;
 }
 
 QDebug operator<<(QDebug dbg, const Transaction &transaction) {
@@ -11,7 +15,7 @@ QDebug operator<<(QDebug dbg, const Transaction &transaction) {
     for (int i = 0; i < transaction.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << transaction[i];
+        dbg.nospace() << transaction[i].id;
     }
     dbg.nospace() << "}";
 
@@ -27,13 +31,28 @@ QDebug operator<<(QDebug dbg, const NamedTransaction &namedTransaction) {
     for (int i = 0; i < transaction.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[transaction[i]].toStdString().c_str();
+        dbg.nospace() << itemNames[transaction[i].id].toStdString().c_str();
     }
     dbg.nospace() << "}";
 
     return dbg.nospace();
 }
 
+QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList) {
+    ItemIDList itemIDList = namedItemIDList.itemIDs;
+    ItemNameHash itemNames = namedItemIDList.itemNames;
+
+    dbg.nospace() << "[size=" << itemIDList.size() << "] {";
+
+    for (int i = 0; i < itemIDList.size(); i++) {
+        if (i > 0)
+            dbg.nospace() << ", ";
+        dbg.nospace() << itemNames[itemIDList[i]].toStdString().c_str();
+    }
+    dbg.nospace() << "}";
+
+    return dbg.nospace();
+}
 
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList) {
     ItemList itemList = namedItemList.items;
@@ -44,7 +63,7 @@ QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList) {
     for (int i = 0; i < itemList.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[itemList[i]].toStdString().c_str();
+        dbg.nospace() << itemNames[itemList[i].id].toStdString().c_str() << ":" << itemList[i].count;
     }
     dbg.nospace() << "}";
 

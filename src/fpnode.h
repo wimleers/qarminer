@@ -14,37 +14,40 @@ private:
     static unsigned int nextNodeID() { return FPNode::lastNodeID++; }
 
 protected:
-    unsigned int ID;
+    unsigned int nodeID;
     FPNode* parent;
-    ItemFPNodeHash children;
-    int count;
-    int item;
+    ItemIDFPNodeHash children;
+    ItemCount count;
+    ItemID itemID;
     ItemNameHash* itemNames;
 
 public:
-    FPNode(Item item = ROOT_ITEM, FPNode* parent = NULL);
+    FPNode(Item = Item(), FPNode* parent = NULL);
     ~FPNode();
 
     // Accessors.
-    bool isRoot() const { return this->item == ROOT_ITEM; }
+    bool isRoot() const { return this->itemID == ROOT_ITEMID; }
     bool isLeaf() const { return this->children.size() == 0; }
-    int getID() const { return this->ID; }
-    int getItem() const { return this->item; }
-    int getCount() const { return this->count; }
+    unsigned int getID() const { return this->nodeID; }
+    Item getItem() const { Item item; item.id = this->itemID; item.count = this->count; return item; }
+    ItemID getItemID() const { return this->itemID; }
+    ItemCount getCount() const { return this->count; }
     FPNode* getParent() const { return this->parent; }
-    FPNode* getChild(Item item) const;
-    ItemFPNodeHash getChildren() const;
-    bool hasChild(Item item) const;
-    int numChildren() const { return this->children.size(); }
+    FPNode* getChild(ItemID itemID) const;
+    ItemIDFPNodeHash getChildren() const;
+    bool hasChild(ItemID itemID) const;
+    unsigned int numChildren() const { return this->children.size(); }
     ItemNameHash* getItemNames() const { return this->itemNames; }
 
     // Modifiers.
     void addChild(FPNode* child);
     void removeChild(FPNode * child);
-    void setitem(Item item) { this->item = item; };
+    void setItem(ItemID itemID) { this->itemID = itemID; };
     void setParent(FPNode* parent) { this->parent = parent; }
     void increment() { this->count++; }
     void decrement() { this->count--; }
+    void increaseCount(ItemCount count) { this->count += count; }
+    void decreaseCount(ItemCount count) { this->count -= count; }
     void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
 };
 

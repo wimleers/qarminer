@@ -13,8 +13,8 @@
 class FPTree {
 protected:
     FPNode* root;
-    QHash<Item, FPNodeList> itemPaths;
-    ItemNameHash * itemNames;
+    QHash<ItemID, FPNodeList> itemPaths;
+    ItemNameHash* itemNames;
 
     void addNodeToItemPath(FPNode* node);
     void removeNodeFromItemPath(FPNode* node);
@@ -25,17 +25,16 @@ public:
 
     // Accessors.
     FPNode* getRoot() const { return this->root; }
-    bool hasItemPath(Item item) const;
-    QList<Item> getItems() const { return this->itemPaths.keys(); }
-    FPNodeList getItemPath(Item item) const;
-    bool itemPathContains(Item item, FPNode* node) const;
+    bool hasItemPath(ItemID itemID) const;
+    QList<ItemID> getItemIDs() const { return this->itemPaths.keys(); }
+    FPNodeList getItemPath(ItemID itemID) const;
+    bool itemPathContains(ItemID itemID, FPNode* node) const;
     ItemNameHash* getItemNames() const { return this->itemNames; }
-    ItemCount getItemSupport(Item item) const;
-    QList<ItemList> calculatePrefixPaths(Item item) const;
+    ItemCount getItemSupport(ItemID item) const;
+    QList<ItemList> calculatePrefixPaths(ItemID itemID) const;
 
     // Modifiers.
     void addTransaction(Transaction transaction);
-    FPTree* getConditionalFPTreeFor(Item item);
     void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
 
     // Static (class) methods.

@@ -4,10 +4,10 @@
 unsigned int FPNode::lastNodeID = 0;
 
 FPNode::FPNode(Item item, FPNode* parent) {
-    this->ID = FPNode::nextNodeID();
-    this->item = item;
+    this->nodeID = FPNode::nextNodeID();
+    this->itemID = item.id;
+    this->count = item.count;
     this->parent = parent;
-    this->count = (item != ROOT_ITEM) ? 1 : 0; // When it's the root item, initialize the count to 0.
     this->itemNames = NULL;
 
     // Also let the parent know it has a new child, when it is a valid parent.
@@ -22,43 +22,43 @@ FPNode::~FPNode() {
     this->children.clear();
 }
 
-bool FPNode::hasChild(Item item) const {
-    return this->children.contains(item);
+bool FPNode::hasChild(ItemID itemID) const {
+    return this->children.contains(itemID);
 }
 
-FPNode * FPNode::getChild(Item item) const {
-    if (this->children.contains(item))
-        return this->children.value(item);
+FPNode * FPNode::getChild(ItemID itemID) const {
+    if (this->children.contains(itemID))
+        return this->children.value(itemID);
     else
         return NULL;
 }
 
-ItemFPNodeHash FPNode::getChildren() const {
+ItemIDFPNodeHash FPNode::getChildren() const {
     return this->children;
 }
 
 void FPNode::addChild(FPNode* child) {
-    this->children.insert(child->getItem(), child);
+    this->children.insert(child->getItemID(), child);
 }
 
 void FPNode::removeChild(FPNode* child) {
-    if (this->children.contains(item))
-        this->children.remove(child->getItem());
+    if (this->children.contains(itemID))
+        this->children.remove(child->getItemID());
 }
 
 
 
 
 QDebug operator<<(QDebug dbg, const FPNode &node) {
-    if (node.getItem() == ROOT_ITEM)
+    if (node.getItemID() == ROOT_ITEMID)
         dbg.nospace() << "(NULL)";
     else {
         QString item, count, ID;
         ItemNameHash * itemNames = node.getItemNames();
         if (itemNames != NULL)
-            item.sprintf("%  5s", itemNames->value(node.getItem()).toStdString().c_str());
+            item.sprintf("%  5s", itemNames->value(node.getItemID()).toStdString().c_str());
         else
-            item.sprintf("%  5d", node.getItem());
+            item.sprintf("%  5d", node.getItemID());
         count.sprintf("#%03d", node.getCount());
         ID.sprintf("0x%04d", node.getID());
         dbg.nospace() << item.toStdString().c_str() << " (" << count.toStdString().c_str() << "," << ID.toStdString().c_str() <<  ")";

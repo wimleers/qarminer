@@ -14,19 +14,19 @@ class FPGrowth : public QObject {
 protected:
     ARFFParser parser;
     ItemNameHash itemNames;
-    ItemCountHash supportCounts;
-    ItemList itemsSortedBySupportCount;
+    ItemCountHash totalSupportCounts;
+    ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;
-    int minimumSupport;
+    ItemCount minimumSupport;
 
     Transaction optimizeTransaction(Transaction transaction) const;
     void calculateItemsSortedBySupportCount();
-    ItemList determineSuffixOrder() const;
+    ItemIDList determineSuffixOrder() const;
 
     QList<ItemList> generateFrequentItemsets(FPTree* tree, ItemList suffix = ItemList());
 
 public:
-    FPGrowth(QString filename, int minimumSupport);
+    FPGrowth(QString filename, ItemCount minimumSupport);
 
 protected slots:
     void parsedTransaction(Transaction transaction);
