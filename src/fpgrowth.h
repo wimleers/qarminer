@@ -26,7 +26,14 @@ protected:
     ItemIDList determineSuffixOrder() const;
 
     QList<ItemList> generateFrequentItemsets(FPTree* tree, ItemList suffix = ItemList());
-    QList<SupportCount> calculateSupportForFrequentItemsets(QList<ItemList> frequentItemsets);
+    QList<QPair<ItemList, ItemList> > generateAssociationRules(QList<ItemList> frequentItemsets);
+    QList<QPair<ItemList, ItemList> > generateAssociationRulesForFrequentItemset(ItemList frequentItemset, SupportCount frequentItemsetSupportCount, QList<ItemList> consequents);
+
+    // Static (class) methods.
+    static QList<SupportCount> calculateSupportForFrequentItemsets(QList<ItemList> frequentItemsets);
+    static SupportCount calculateSupportForFrequentItemset(ItemList frequentItemset);
+    static ItemList getAntecedent(ItemList frequentItemset, ItemList consequent);
+    static QList<ItemList> generateCandidateItemsets(QList<ItemList> frequentItemsubsets);
 
 public:
     FPGrowth(QString filename, SupportCount minimumSupport, float minimumConfidence);

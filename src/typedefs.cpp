@@ -1,6 +1,5 @@
 #include "typedefs.h"
 
-
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItemID) {
     return dbg.space() << namedItemID.itemNames[namedItemID.itemID].toStdString().c_str();
 }

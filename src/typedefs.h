@@ -45,6 +45,14 @@ typedef QHash<ItemID, FPNode*> ItemIDFPNodeHash;
 typedef QList<FPNode*> FPNodeList;
 
 
+// Comparison operators to support Qt's container types' contains() method.
+inline bool operator==(const Item &i1, const Item &i2) {
+    return i1.id == i2.id && i1.supportCount == i2.supportCount;
+}
+inline bool operator!=(const Item &i1, const Item &i2) {
+    return !(i1 == i2);
+}
+
 
 // QDebug() streaming output operators.
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItem);

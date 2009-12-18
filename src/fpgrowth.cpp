@@ -73,7 +73,7 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
 
     qDebug() << "Calculating stage 3: rule generation"
              << "-" << "Time complexity: [not yet available].";
-
+    qDebug() << "mined rules: " << this->generateAssociationRules(frequentItemsets);
 }
 
 
@@ -315,25 +315,149 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
     return frequentItemsets;
 }
 
+QList<QPair<ItemList, ItemList> > FPGrowth::generateAssociationRules(QList<ItemList> frequentItemsets) {
+    QList<QPair<ItemList, ItemList> > associationRules;
+    SupportCount supportCount;
+
+    foreach (ItemList frequentItemset, frequentItemsets) {
+        QList<ItemList> candidateConsequents;
+        // It's only possible to generate an association rule if there are at
+        // least two items in the frequent itemset.
+        if (frequentItemset.size() >= 2) {
+            supportCount = FPGrowth::calculateSupportForFrequentItemset(frequentItemset);
+            foreach (Item item, frequentItemset) {
+                ItemList consequent;
+                consequent.append(item);
+                candidateConsequents.append(consequent);
+            }
+            qDebug() << "Generating rules for frequent itemset" << frequentItemset << " and consequents " << candidateConsequents;
+            associationRules.append(this->generateAssociationRulesForFrequentItemset(frequentItemset, supportCount, candidateConsequents));
+        }
+    }
+    return associationRules;
+}
+
+QList<QPair<ItemList, ItemList> > FPGrowth::generateAssociationRulesForFrequentItemset(ItemList frequentItemset, SupportCount frequentItemsetSupportCount, QList<ItemList> consequents) {
+    QList<QPair<ItemList, ItemList> > associationRules;
+    QList<ItemList> candidateConsequents;
+    SupportCount antecedentSupportCount;
+    float confidence;
+
+    unsigned int k = frequentItemset.size(); // Size of the frequent itemset.
+    unsigned int m = consequents[0].size(); // Size of a single consequent.
+//    qDebug() << "k" << k << "m" << m << "continue?" << (k>m+1);
+    if (k >= m + 1) { // TRICKY: the book says k > m+1, but then no rules like {1} -> {1} can be generated! (because 2 == 1+1)
+        candidateConsequents = FPGrowth::generateCandidateItemsets(consequents);
+        qDebug() << "candidate consequents" << candidateConsequents;
+        foreach (ItemList candidateConsequent, candidateConsequents) {
+            ItemList antecedent = FPGrowth::getAntecedent(frequentItemset, candidateConsequent);
+            antecedentSupportCount = this->calculateSupportForFrequentItemset(antecedent);
+            confidence = 1.0 * frequentItemsetSupportCount / antecedentSupportCount;
+
+            // We've found an association rule!
+            qDebug () << "confidence" << confidence << "antecedent" << antecedent << "consequent" << candidateConsequent;
+            if (confidence > this->minimumConfidence)
+                associationRules.append(qMakePair(antecedent, candidateConsequent));
+        }
+        if (candidateConsequents.size() > 0)
+            associationRules.append(this->generateAssociationRulesForFrequentItemset(frequentItemset, frequentItemsetSupportCount, candidateConsequents));
+    }
+    return associationRules;
+}
+
+
+//------------------------------------------------------------------------------
+// Protected static methods.
+
 /**
- * Given frequent itemsets, calculate the support count (i.e. absolute number)
- * of each frequent itemset.
- * Do this by finding the minimum support count of all items in the frequent
- * itemset.
+ * Runs FPGrowth::calculateSupportForFrequentItemset() on a list of frequent
+ * itemsets.
+ *
+ * @see FPGrowth::calculateSupportForFrequentItemset()
  */
 QList<SupportCount> FPGrowth::calculateSupportForFrequentItemsets(QList<ItemList> frequentItemsets) {
     QList<SupportCount> supportCounts;
-    SupportCount supportCount;
-    foreach (ItemList frequentItemset, frequentItemsets) {
-        supportCount = 65535;
-        foreach (Item item, frequentItemset)
-            if (item.supportCount < supportCount)
-                supportCount = item.supportCount;
-        supportCounts.append(supportCount);
-    }
+    foreach (ItemList frequentItemset, frequentItemsets)
+        supportCounts.append(FPGrowth::calculateSupportForFrequentItemset(frequentItemset));
     return supportCounts;
 }
 
+/**
+ * Given a frequent itemsets, calculate its support count.
+ * Do this by finding the minimum support count of all items in the frequent
+ * itemset.
+ */
+SupportCount FPGrowth::calculateSupportForFrequentItemset(ItemList frequentItemset) {
+    SupportCount supportCount = 65535;
+    foreach (Item item, frequentItemset)
+        if (item.supportCount < supportCount)
+            supportCount = item.supportCount;
+    return supportCount;
+}
+
+/**
+ * Build the antecedent for this candidate consequent, which are all items in
+ * the frequent itemset except for those in the candidate consequent.
+ */
+ItemList FPGrowth::getAntecedent(ItemList frequentItemset, ItemList consequent) {
+    ItemList antecedent;
+    foreach (Item item, frequentItemset)
+        if (!consequent.contains(item))
+            antecedent.append(item);
+    return antecedent;
+}
+
+/**
+ * A.k.a. "apriori-gen", but without pruning because we're already working with
+ * frequent itemsets, which were generated by the FP-growth algorithm. We solely
+ * need this function for association rule mining, not for frequent itemset
+ * generation.
+ */
+QList<ItemList> FPGrowth::generateCandidateItemsets(QList<ItemList> frequentItemsubsets) {
+    // Phase 1: candidate generation.
+    QList<ItemList> candidateItemsets;
+    int allButOne = frequentItemsubsets[0].size() - 1;
+    foreach (ItemList frequentItemsubset, frequentItemsubsets) {
+//        qDebug() << "\t\tA" << frequentItemsubset;
+        foreach (ItemList otherFrequentItemsubset, frequentItemsubsets) {
+//            qDebug() << "\t\tB" << otherFrequentItemsubset;
+            if (allButOne == 0) {
+//                qDebug() << "yes" << frequentItemsubset[0].id << otherFrequentItemsubset[0].id;
+                if (frequentItemsubset[0] == otherFrequentItemsubset[0]) {
+//                    qDebug() << "skipping!";
+                    break;
+                }
+            }
+            else {
+                // Iterate over all but the last item in this frequent itemsubset.
+                for (int i = 0; i < allButOne; i++) {
+                    if (frequentItemsubset[i] != otherFrequentItemsubset[i])
+                        break;
+                }
+            }
+//            qDebug() << "equal on all but one:" << frequentItemsubset << otherFrequentItemsubset;
+
+
+
+            // The first all-but-one items of the two frequent itemsubsets
+            // matched! Now generate a candidate itemset, whose:
+            // - first k-1 == allButOne items are copied from the first
+            //   frequent itemsubset (outer)
+            // - last (k == allButOne + 1) item is copied from the second
+            //   frequent itemsubset (inner)
+            ItemList candidateItemset;
+            candidateItemset.append(frequentItemsubset);
+            candidateItemset.append(otherFrequentItemsubset[allButOne]);
+            // Store this candidate set.
+            candidateItemsets.append(candidateItemset);
+        }
+    }
+
+    // Phase 2: candidate pruning.
+    // Not necessary!
+
+    return candidateItemsets;
+}
 
 //------------------------------------------------------------------------------
 // Protected slots.

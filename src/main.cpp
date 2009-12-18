@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     delete tree;
 */
 
-    FPGrowth * growth = new FPGrowth(QString("input"), 3, 0.8);
+    FPGrowth * growth = new FPGrowth(QString("input"), 3, 0.0);
     delete growth;
 
     return 0;
