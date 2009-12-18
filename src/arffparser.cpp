@@ -18,9 +18,9 @@ a,b,d
 b,c,e
 */
 
-QPair< QHash<ItemID, ItemName>, QHash<ItemID, ItemCount> > ARFFParser::parseItemNamesAndSupportCounts() {
+QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseItemNamesAndSupportCounts() {
     QHash<ItemID, ItemName> names;
-    QHash<ItemID, ItemCount> supportCounts;
+    QHash<ItemID, SupportCount> supportCounts;
 
     /*
     names.insert(0, QString("a"));

@@ -1,10 +1,14 @@
 #include "fpgrowth.h"
 
-FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
+FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumConfidence) {
     this->parser.setFile(filename);
     this->minimumSupport = minimumSupport;
+    this->minimumConfidence = minimumConfidence;
     this->numberTransactions = 0;
     this->tree = new FPTree();
+
+
+
 
     qDebug() << "Preprocessing stage 1: parsing item names and support counts."
              << "-" << "Time complexity: O(n).";
@@ -17,16 +21,21 @@ FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
     // of the corresponding integers when printing the tree.
     this->tree->setItemNames(&this->itemNames);
 
+
+
+
     qDebug() << "Preprocessing stage 2: parsing transactions"
              << "-" << "Time complexity: O(n).";
     QObject::connect(&(this->parser), SIGNAL(parsedTransaction(Transaction)), this, SLOT(parsedTransaction(Transaction)));
     // The slot that parser.parseTransactions() will call, will fill the FPTree.
     this->parser.parseTransactions();
     qDebug() << "Parsed" << this->numberTransactions << "transactions.";
-
     qDebug() << *this->tree;
 
-    qDebug() << "Calculating stage"
+
+
+
+    qDebug() << "Calculating stage 1: frequent itemset generation"
              << "-" << "Time complexity: [not yet available].";
     ItemIDList orderedSuffixes = this->determineSuffixOrder();
 
@@ -37,6 +46,8 @@ FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
     qDebug() << "ordered suffixes:" << namedOrderedSuffixes << ", or: " <<  orderedSuffixes;
 
     QList<ItemList> frequentItemsets = this->generateFrequentItemsets(this->tree);
+
+    // Debug output.
     qDebug() << "frequent itemsets:" << frequentItemsets.size();
     NamedItemList nfis;
     foreach (ItemList fis, frequentItemsets) {
@@ -44,6 +55,25 @@ FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
         nfis.itemNames = this->itemNames;
         qDebug() << nfis;
     }
+
+
+
+
+    qDebug() << "Calculating stage 2: support & confidence"
+             << "-" << "Time complexity: O(n).";
+    QList<SupportCount> frequentItemsetSupportCounts = this->calculateSupportForFrequentItemsets(frequentItemsets);
+    for (int i = 0; i < frequentItemsets.size(); i++) {
+        nfis.items = frequentItemsets[i];
+        nfis.itemNames = this->itemNames;
+        qDebug() << "support(" << nfis << ") =" << (frequentItemsetSupportCounts[i] * 1.0 / this->numberTransactions);
+    }
+
+
+
+
+    qDebug() << "Calculating stage 3: rule generation"
+             << "-" << "Time complexity: [not yet available].";
+
 }
 
 
@@ -56,10 +86,10 @@ FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
 Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
     Transaction optimizedTransaction;
     QHash<ItemID, Item> itemIDToItem;
-    QHash<ItemCount, ItemID> totalSupportToItemID;
-    QSet<ItemCount> supportSet;
-    QList<ItemCount> supportList;
-    ItemCount totalSupportCount;
+    QHash<SupportCount, ItemID> totalSupportToItemID;
+    QSet<SupportCount> supportSet;
+    QList<SupportCount> supportList;
+    SupportCount totalSupportCount;
 
     // Fill the following variables:
     // - itemIDToItem, which maps itemIDs (key) to their corresponding items
@@ -94,7 +124,7 @@ Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
     // Sort supportSet from greater to smaller. But first convert supportSet to
     // a list supportList, because sets cannot have an order by definition.
     supportList = supportSet.toList();
-    qSort(supportList.begin(), supportList.end(), qGreater<ItemCount>());
+    qSort(supportList.begin(), supportList.end(), qGreater<SupportCount>());
 
     // Store items with largest support first in the optimized transaction:
     // - first iterate over all supports in supportList, which are now sorted
@@ -104,7 +134,7 @@ Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
     //   itemsets with the same support, which minimizes the size of the FP-tree
     //   even further (i.e. maximizes density)
     // - finally, append the item to the transaction optimizedTransaction.
-    foreach (ItemCount support, supportList) {
+    foreach (SupportCount support, supportList) {
         ItemIDList itemIDs = totalSupportToItemID.values(support);
         qSort(itemIDs);
         foreach (ItemID itemID, itemIDs)
@@ -115,10 +145,10 @@ Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
 }
 
 void FPGrowth::calculateItemsSortedBySupportCount() {
-    QHash<ItemCount, ItemID> itemsByTotalSupport;
-    QSet<ItemCount> supportSet;
-    QList<ItemCount> supportList;
-    ItemCount totalSupport;
+    QHash<SupportCount, ItemID> itemsByTotalSupport;
+    QSet<SupportCount> supportSet;
+    QList<SupportCount> supportList;
+    SupportCount totalSupport;
 
     Q_ASSERT_X(this->itemsSortedByTotalSupportCount.size() == 0, "FPGrowth::getItemsSortedBySupportCount", "Should only be called once.");
 
@@ -146,7 +176,7 @@ void FPGrowth::calculateItemsSortedBySupportCount() {
     //   itemsets with the same support, which minimizes the size of the FP-tree
     //   even further (i.e. maximizes density)
     // - finally, append the item to the transaction optimizedTransaction.
-    foreach (ItemCount support, supportList) {
+    foreach (SupportCount support, supportList) {
         ItemIDList itemIDs = itemsByTotalSupport.values(support);
         qSort(itemIDs);
         this->itemsSortedByTotalSupportCount.append(itemIDs);
@@ -198,7 +228,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
         // Only if this suffix item's support meets or exceeds the minim
         // support, it will be added as a frequent itemset (appended with the
         // received suffix of course).
-        ItemCount suffixItemSupport = ctree->getItemSupport(suffixItemID);
+        SupportCount suffixItemSupport = ctree->getItemSupport(suffixItemID);
         if (suffixItemSupport >= this->minimumSupport) {
             // The current suffix item, when prepended to the received suffix,
             // is the next frequent itemset. Additionally, it will serve as the
@@ -284,6 +314,26 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
 
     return frequentItemsets;
 }
+
+/**
+ * Given frequent itemsets, calculate the support count (i.e. absolute number)
+ * of each frequent itemset.
+ * Do this by finding the minimum support count of all items in the frequent
+ * itemset.
+ */
+QList<SupportCount> FPGrowth::calculateSupportForFrequentItemsets(QList<ItemList> frequentItemsets) {
+    QList<SupportCount> supportCounts;
+    SupportCount supportCount;
+    foreach (ItemList frequentItemset, frequentItemsets) {
+        supportCount = 65535;
+        foreach (Item item, frequentItemset)
+            if (item.supportCount < supportCount)
+                supportCount = item.supportCount;
+        supportCounts.append(supportCount);
+    }
+    return supportCounts;
+}
+
 
 //------------------------------------------------------------------------------
 // Protected slots.

@@ -17,7 +17,8 @@ protected:
     ItemCountHash totalSupportCounts;
     ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;
-    ItemCount minimumSupport;
+    SupportCount minimumSupport;
+    float minimumConfidence;
     int numberTransactions;
 
     Transaction optimizeTransaction(Transaction transaction) const;
@@ -25,9 +26,10 @@ protected:
     ItemIDList determineSuffixOrder() const;
 
     QList<ItemList> generateFrequentItemsets(FPTree* tree, ItemList suffix = ItemList());
+    QList<SupportCount> calculateSupportForFrequentItemsets(QList<ItemList> frequentItemsets);
 
 public:
-    FPGrowth(QString filename, ItemCount minimumSupport);
+    FPGrowth(QString filename, SupportCount minimumSupport, float minimumConfidence);
 
 protected slots:
     void parsedTransaction(Transaction transaction);

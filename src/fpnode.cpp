@@ -6,7 +6,7 @@ unsigned int FPNode::lastNodeID = 0;
 FPNode::FPNode(Item item, FPNode* parent) {
     this->nodeID = FPNode::nextNodeID();
     this->itemID = item.id;
-    this->count = item.count;
+    this->count = item.supportCount;
     this->parent = parent;
     this->itemNames = NULL;
 

@@ -30,7 +30,7 @@ public:
     FPNodeList getItemPath(ItemID itemID) const;
     bool itemPathContains(ItemID itemID, FPNode* node) const;
     ItemNameHash* getItemNames() const { return this->itemNames; }
-    ItemCount getItemSupport(ItemID item) const;
+    SupportCount getItemSupport(ItemID item) const;
     QList<ItemList> calculatePrefixPaths(ItemID itemID) const;
 
     // Modifiers.

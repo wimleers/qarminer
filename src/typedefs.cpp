@@ -6,7 +6,7 @@ QDebug operator<<(QDebug dbg, const NamedItemID &namedItemID) {
 }
 
 QDebug operator<<(QDebug dbg, const NamedItem &namedItem) {
-    return dbg.space() << namedItem.itemNames[namedItem.item.id].toStdString().c_str() << ":" << namedItem.item.count;
+    return dbg.space() << namedItem.itemNames[namedItem.item.id].toStdString().c_str() << ":" << namedItem.item.supportCount;
 }
 
 QDebug operator<<(QDebug dbg, const Transaction &transaction) {
@@ -63,7 +63,7 @@ QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList) {
     for (int i = 0; i < itemList.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[itemList[i].id].toStdString().c_str() << ":" << itemList[i].count;
+        dbg.nospace() << itemNames[itemList[i].id].toStdString().c_str() << ":" << itemList[i].supportCount;
     }
     dbg.nospace() << "}";
 

@@ -17,7 +17,7 @@ protected:
     unsigned int nodeID;
     FPNode* parent;
     ItemIDFPNodeHash children;
-    ItemCount count;
+    SupportCount count;
     ItemID itemID;
     ItemNameHash* itemNames;
 
@@ -29,9 +29,9 @@ public:
     bool isRoot() const { return this->itemID == ROOT_ITEMID; }
     bool isLeaf() const { return this->children.size() == 0; }
     unsigned int getID() const { return this->nodeID; }
-    Item getItem() const { Item item; item.id = this->itemID; item.count = this->count; return item; }
+    Item getItem() const { Item item; item.id = this->itemID; item.supportCount = this->count; return item; }
     ItemID getItemID() const { return this->itemID; }
-    ItemCount getCount() const { return this->count; }
+    SupportCount getCount() const { return this->count; }
     FPNode* getParent() const { return this->parent; }
     FPNode* getChild(ItemID itemID) const;
     ItemIDFPNodeHash getChildren() const;
@@ -46,8 +46,8 @@ public:
     void setParent(FPNode* parent) { this->parent = parent; }
     void increment() { this->count++; }
     void decrement() { this->count--; }
-    void increaseCount(ItemCount count) { this->count += count; }
-    void decreaseCount(ItemCount count) { this->count -= count; }
+    void increaseCount(SupportCount count) { this->count += count; }
+    void decreaseCount(SupportCount count) { this->count -= count; }
     void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
 };
 

@@ -6,7 +6,7 @@
 FPTree::FPTree() {
     Item rootItem;
     rootItem.id = ROOT_ITEMID;
-    rootItem.count = 0;
+    rootItem.supportCount = 0;
     root = new FPNode(rootItem);
 }
 
@@ -31,8 +31,8 @@ bool FPTree::itemPathContains(ItemID itemID, FPNode* node) const {
     return (this->itemPaths.contains(itemID) && this->itemPaths[itemID].contains(node));
 }
 
-ItemCount FPTree::getItemSupport(ItemID itemID) const {
-    ItemCount supportCount = 0;
+SupportCount FPTree::getItemSupport(ItemID itemID) const {
+    SupportCount supportCount = 0;
     foreach (FPNode* node, this->itemPaths[itemID])
         supportCount += node->getCount();
     return supportCount;
@@ -53,7 +53,7 @@ QList<ItemList> FPTree::calculatePrefixPaths(ItemID itemID) const {
     QList<ItemList> prefixPaths;
     ItemList prefixPath;
     FPNode* node;
-    ItemCount supportCount;
+    SupportCount supportCount;
     Item item;
 
     FPNodeList leafNodes = this->getItemPath(itemID);
@@ -68,7 +68,7 @@ QList<ItemList> FPTree::calculatePrefixPaths(ItemID itemID) const {
         prefixPath.prepend(node->getItem());
         while ((node = node->getParent()) != NULL && node->getItemID() != ROOT_ITEMID) {
             item = node->getItem();
-            item.count = supportCount;
+            item.supportCount = supportCount;
             prefixPath.prepend(item);
         }
 
@@ -85,7 +85,7 @@ ItemCountHash FPTree::calculateSupportCountsForPrefixPaths(QList<ItemList> prefi
 
     foreach (ItemList prefixPath, prefixPaths)
         foreach (Item item, prefixPath)
-            supportCounts[item.id] = (supportCounts.contains(item.id)) ? supportCounts[item.id] + item.count : item.count;
+            supportCounts[item.id] = (supportCounts.contains(item.id)) ? supportCounts[item.id] + item.supportCount : item.supportCount;
 
     return supportCounts;
 }
@@ -102,7 +102,7 @@ void FPTree::addTransaction(Transaction transaction) {
             // There is already a node in the tree for the current transaction
             // item, so reuse it: increase its count.
             nextNode = currentNode->getChild(item.id);
-            nextNode->increaseCount(item.count);
+            nextNode->increaseCount(item.supportCount);
         }
         else {
             // Create a new node and add it as a child of the current node.

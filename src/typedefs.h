@@ -11,16 +11,17 @@
 typedef uint16_t ItemID; // Supports 65536 *different* items. Change to uint32_t or uint64_t to support more.
 #define ROOT_ITEMID 65535 // Largest supported value for uint16_t.
 typedef QString ItemName;
-typedef uint16_t ItemCount; // Supports 65536 *total* items. Change to uint32_t or uint64_t to support more.
-struct ItemStruct { ItemID id; ItemCount count; };
+typedef uint16_t SupportCount; // Supports 65536 *total* items. Change to uint32_t or uint64_t to support more.
+typedef uint8_t Amount; // Supports amounts up to 256. Change to uint16_t, uint32_t or uint64_t to support more.
+struct ItemStruct { ItemID id; SupportCount supportCount; };
 typedef ItemStruct Item;
 
 // Generic data mining container types.
 typedef QHash<ItemID, ItemName> ItemNameHash;
-typedef QHash<ItemID, ItemCount> ItemCountHash;
+typedef QHash<ItemID, SupportCount> ItemCountHash;
 typedef QList<ItemID> ItemIDList;
 typedef QList<Item> ItemList;
-typedef QList<ItemCount> ItemCountList;
+typedef QList<SupportCount> ItemCountList;
 typedef QList<Item> Transaction;
 
 // Generic data mining types that support named output.
