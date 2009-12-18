@@ -18,6 +18,7 @@ protected:
     ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;
     ItemCount minimumSupport;
+    int numberTransactions;
 
     Transaction optimizeTransaction(Transaction transaction) const;
     void calculateItemsSortedBySupportCount();

@@ -3,6 +3,7 @@
 FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
     this->parser.setFile(filename);
     this->minimumSupport = minimumSupport;
+    this->numberTransactions = 0;
     this->tree = new FPTree();
 
     qDebug() << "Preprocessing stage 1: parsing item names and support counts."
@@ -21,6 +22,7 @@ FPGrowth::FPGrowth(QString filename, ItemCount minimumSupport) {
     QObject::connect(&(this->parser), SIGNAL(parsedTransaction(Transaction)), this, SLOT(parsedTransaction(Transaction)));
     // The slot that parser.parseTransactions() will call, will fill the FPTree.
     this->parser.parseTransactions();
+    qDebug() << "Parsed" << this->numberTransactions << "transactions.";
 
     qDebug() << *this->tree;
 
@@ -290,8 +292,10 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
   * Slot that receives a Transaction, optimizes it and adds it to the tree.
   */
 void FPGrowth::parsedTransaction(Transaction transaction) {
-    Transaction optimizedTransaction;
+    // Keep track of the number of transactions.
+    this->numberTransactions++;
 
+    Transaction optimizedTransaction;
     optimizedTransaction = this->optimizeTransaction(transaction);
 
     // It's possible that the optimized transaction has become empty if none of
