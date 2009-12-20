@@ -23,6 +23,8 @@ typedef QList<ItemID> ItemIDList;
 typedef QList<Item> ItemList;
 typedef QList<SupportCount> ItemCountList;
 typedef QList<Item> Transaction;
+struct AssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; };
+typedef AssociationRuleStruct AssociationRule;
 
 // Generic data mining types that support named output.
 struct NamedItemStruct { Item item; ItemNameHash itemNames; };
@@ -35,6 +37,8 @@ struct NamedItemIDListStruct { ItemIDList itemIDs; ItemNameHash itemNames; };
 typedef NamedItemIDListStruct NamedItemIDList;
 struct NamedTransactionStruct { Transaction transaction; ItemNameHash itemNames; };
 typedef NamedTransactionStruct NamedTransaction;
+struct NamedAssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; ItemNameHash itemNames; };
+typedef NamedAssociationRuleStruct NamedAssociationRule;
 
 
 // FP-growth specific types.
@@ -47,7 +51,8 @@ typedef QList<FPNode*> FPNodeList;
 
 // Comparison operators to support Qt's container types' contains() method.
 inline bool operator==(const Item &i1, const Item &i2) {
-    return i1.id == i2.id && i1.supportCount == i2.supportCount;
+    // Important! We don't require a match on the supportCount attribute!
+    return i1.id == i2.id;
 }
 inline bool operator!=(const Item &i1, const Item &i2) {
     return !(i1 == i2);
@@ -56,10 +61,13 @@ inline bool operator!=(const Item &i1, const Item &i2) {
 
 // QDebug() streaming output operators.
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItem);
+QDebug operator<<(QDebug dbg, const Item &item);
 QDebug operator<<(QDebug dbg, const NamedItem &namedItem);
 QDebug operator<<(QDebug dbg, const Transaction &transaction);
 QDebug operator<<(QDebug dbg, const NamedTransaction &namedTransaction);
 QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList);
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList);
+QDebug operator<<(QDebug dbg, const AssociationRule &associationRule);
+QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule);
 
 #endif // TYPEDEFS_H

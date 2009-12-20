@@ -37,6 +37,7 @@ QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseI
     */
 
 
+    /*
     names.insert(0, QString("bread"));
     names.insert(1, QString("milk"));
     names.insert(2, QString("diapers"));
@@ -50,6 +51,21 @@ QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseI
     supportCounts.insert(3, 3);
     supportCounts.insert(4, 1);
     supportCounts.insert(5, 2);
+    */
+
+    names.insert(0, QString("BOUGHTI1"));
+    names.insert(1, QString("BOUGHTI2"));
+    names.insert(2, QString("BOUGHTI3"));
+    names.insert(3, QString("BOUGHTI4"));
+    names.insert(4, QString("BOUGHTI5"));
+
+    supportCounts.insert(0, 6);
+    supportCounts.insert(1, 7);
+    supportCounts.insert(2, 6);
+    supportCounts.insert(3, 2);
+    supportCounts.insert(4, 2);
+
+
     return qMakePair(names, supportCounts);
 }
 
@@ -68,6 +84,7 @@ void ARFFParser::parseTransactions() {
     transactions[9] << 1 << 2 << 4;
     */
 
+    /*
     Transaction* transactions = new Transaction[5];
     Item i0 = {0, 1};
     Item i1 = {1, 1};
@@ -80,8 +97,25 @@ void ARFFParser::parseTransactions() {
     transactions[2] << i1 << i2 << i3 << i5;
     transactions[3] << i0 << i1 << i2 << i3;
     transactions[4] << i0 << i1 << i2 << i5;
+*/
 
-    for (int i = 0; i < 5; i++)
+    Transaction* transactions = new Transaction[9];
+    Item i0 = {0, 1};
+    Item i1 = {1, 1};
+    Item i2 = {2, 1};
+    Item i3 = {3, 1};
+    Item i4 = {4, 1};
+    transactions[0] << i0 << i1 << i4;
+    transactions[1] << i1 << i3;
+    transactions[2] << i1 << i2;
+    transactions[3] << i0 << i1 << i3;
+    transactions[4] << i0 << i2;
+    transactions[5] << i1 << i2;
+    transactions[6] << i0 << i2;
+    transactions[7] << i0 << i1 << i2 << i4;
+    transactions[8] << i0 << i1 << i2;
+
+    for (int i = 0; i < 9; i++)
         emit parsedTransaction(transactions[i]);
 }
 
