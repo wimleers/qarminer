@@ -4,20 +4,6 @@ ARFFParser::ARFFParser() {
     // Nothing to do.
 }
 
-/*
-  Mocked transaction data.
-a,b
-b,c,d
-a,c,d,e
-a,d,e
-a,b,c
-a,b,c,d
-a
-a,b,c
-a,b,d
-b,c,e
-*/
-
 /**
  * Parses all item properties in the dataset:
  *   - names
@@ -28,115 +14,139 @@ b,c,e
  * to generate basic quantitative rules. Quantities are also necessary for
  * generating advanced quantitative rules.
  */
-QPair< QHash<ItemID, NameQuantity>, QHash<ItemID, SupportCount> > ARFFParser::parseItemProperties() {
+QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
+    QList<ItemName> columnNames;
     QHash<ItemID, NameQuantity> nqs;
     QHash<ItemID, SupportCount> supportCounts;
+    bool dataSection = false;
 
-    // This should be used when implementing the actual parser.
-    //QHash<ItemName, QHash<Quantity, ItemID> > itemIDMapping;
+    QFile file(this->filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        exit(1);
 
-    /*
-    names.insert(0, QString("a"));
-    names.insert(1, QString("b"));
-    names.insert(2, QString("c"));
-    names.insert(3, QString("d"));
-    names.insert(4, QString("e"));
-
-    supportCounts.insert(0, 8);
-    supportCounts.insert(1, 7);
-    supportCounts.insert(2, 6);
-    supportCounts.insert(3, 5);
-    supportCounts.insert(4, 2);
-    */
-
-
-    /*
-    names.insert(0, QString("bread"));
-    names.insert(1, QString("milk"));
-    names.insert(2, QString("diapers"));
-    names.insert(3, QString("beer"));
-    names.insert(4, QString("eggs"));
-    names.insert(5, QString("coke"));
-
-    supportCounts.insert(0, 4);
-    supportCounts.insert(1, 4);
-    supportCounts.insert(2, 4);
-    supportCounts.insert(3, 3);
-    supportCounts.insert(4, 1);
-    supportCounts.insert(5, 2);
-    */
-
+    QTextStream in(&file);
+    QString line;
+    QStringList parts;
+    ItemID nextItemID = 0, itemID;
+    ItemName itemName;
+    Quantity quantity;
     NameQuantity nq;
-    nq.name = QString("BOUGHTI1");
-    nq.quantity = 1;
-    nqs.insert(0, nq);
-    nq.name = QString("BOUGHTI2");
-    nqs.insert(1, nq);
-    nq.quantity = 87;
-    nq.name = QString("BOUGHTI3");
-    nqs.insert(2, nq);
-    nq.name = QString("BOUGHTI4");
-    nqs.insert(3, nq);
-    nq.name = QString("BOUGHTI5");
-    nqs.insert(4, nq);
+    unsigned int columnNameIndex;
 
-    supportCounts.insert(0, 6);
-    supportCounts.insert(1, 7);
-    supportCounts.insert(2, 6);
-    supportCounts.insert(3, 2);
-    supportCounts.insert(4, 2);
+    while (!in.atEnd()) {
+        line = in.readLine();
 
+        // Skip empty lines.
+        if (line.trimmed().size() == 0)
+            continue;
+
+        // Detect if we're entering the data section.
+        if (!dataSection && line.trimmed().compare("@data") == 0)
+            dataSection = true;
+
+        // Parse the header section.
+        if (!dataSection) {
+            parts = line.split(" ");
+            // Parse "@attribute BoughtI1 numeric" lines and keep the "BoughtI1".
+            if (parts.size() >= 3 && parts[2].compare("numeric") == 0) {
+                columnNames.append(parts[1]);
+                QHash<Quantity, ItemID> hash;
+                this->itemIDMapping.insert(columnNames.size() - 1, hash);
+            }
+        }
+        else {
+            parts = line.split(",");
+            // Parse "T100,1,5,0,7,?" lines.
+            if (parts.size() == columnNames.size() + 1) { // Only look at valid lines.
+                for (unsigned int i = 1; i < parts.size(); i++) {
+                    // Trim each part.
+                    parts[i] = parts[i].trimmed();
+
+                    // Check if there is no value for this column.
+                    if (parts[i].compare("?") == 0)
+                        continue;
+
+                    // Retrieve the item name for the current column and parse
+                    // the quantity for it.
+                    columnNameIndex = i - 1;
+                    itemName = columnNames[columnNameIndex];
+                    quantity = atoi(parts[i].toStdString().c_str());
+
+                    // Check if an item ID has already been created for this
+                    // (ItemName, Quantity) combination. Create one if necessary.
+                    if (itemIDMapping[columnNameIndex].contains(quantity))
+                        itemID = itemIDMapping[columnNameIndex][quantity];
+                    else {
+                        itemID = nextItemID++;
+                        // Name and quantity.
+                        nq.name = itemName;
+                        nq.quantity = quantity;
+                        nqs.insert(itemID, nq);
+                        // Store the itemID: it will be necessary when parsing
+                        // transactions.
+                        this->itemIDMapping[columnNameIndex].insert(quantity, itemID);
+                    }
+
+                    // Increase the support count.
+                    supportCounts[itemID]++;
+                }
+            }
+        }
+    }
 
     return qMakePair(nqs, supportCounts);
 }
 
 void ARFFParser::parseTransactions() {
-    /*
-    Transaction* transactions = new Transaction[10];
-    transactions[0] << 0 << 1;
-    transactions[1] << 1 << 2 << 3;
-    transactions[2] << 0 << 2 << 3 << 4;
-    transactions[3] << 0 << 3 << 4;
-    transactions[4] << 0 << 1 << 2;
-    transactions[5] << 0 << 1 << 2 << 3;
-    transactions[6] << 0;
-    transactions[7] << 0 << 1 << 2;
-    transactions[8] << 0 << 1 << 3;
-    transactions[9] << 1 << 2 << 4;
-    */
+    bool dataSection = false;
 
-    /*
-    Transaction* transactions = new Transaction[5];
-    Item i0 = {0, 1};
-    Item i1 = {1, 1};
-    Item i2 = {2, 1};
-    Item i3 = {3, 1};
-    Item i4 = {4, 1};
-    Item i5 = {5, 1};
-    transactions[0] << i0 << i1;
-    transactions[1] << i0 << i2 << i3 << i4;
-    transactions[2] << i1 << i2 << i3 << i5;
-    transactions[3] << i0 << i1 << i2 << i3;
-    transactions[4] << i0 << i1 << i2 << i5;
-*/
+    QFile file(this->filename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        exit(1);
 
-    Transaction* transactions = new Transaction[9];
-    Item i0 = {0, 1};
-    Item i1 = {1, 1};
-    Item i2 = {2, 1};
-    Item i3 = {3, 1};
-    Item i4 = {4, 1};
-    transactions[0] << i0 << i1 << i4;
-    transactions[1] << i1 << i3;
-    transactions[2] << i1 << i2;
-    transactions[3] << i0 << i1 << i3;
-    transactions[4] << i0 << i2;
-    transactions[5] << i1 << i2;
-    transactions[6] << i0 << i2;
-    transactions[7] << i0 << i1 << i2 << i4;
-    transactions[8] << i0 << i1 << i2;
+    QTextStream in(&file);
+    QString line;
+    QStringList parts;
+    Quantity quantity;
+    Transaction transaction;
+    Item item;
+    item.supportCount = 1; // The support count for each parsed item is 1: it can never be >1 within a single transaction.
+    unsigned int columnNameIndex;
 
-    for (int i = 0; i < 9; i++)
-        emit parsedTransaction(transactions[i]);
+    while (!in.atEnd()) {
+        line = in.readLine();
+
+        // Skip empty lines.
+        if (line.trimmed().size() == 0)
+            continue;
+
+        // Detect if we're entering the data section.
+        if (!dataSection && line.trimmed().compare("@data") == 0)
+            dataSection = true;
+
+        // Parse the data section.
+        if (dataSection) {
+            parts = line.split(",");
+            // Parse "T100,1,5,0,7,?" lines.
+            if (parts.size() == this->itemIDMapping.size() + 1) { // Only look at valid lines.
+                for (int i = 1; i < parts.size(); i++) {
+                    // Trim each part.
+                    parts[i] = parts[i].trimmed();
+
+                    // Check if there is no value for this column.
+                    if (parts[i].compare("?") == 0)
+                        continue;
+
+                    columnNameIndex = i - 1;
+                    quantity = atoi(parts[i].toStdString().c_str());
+                    item.id = this->itemIDMapping[columnNameIndex][quantity];
+                    transaction.append(item);
+                }
+
+                // A transaction has been parsed, emit it and then clear it.
+                emit parsedTransaction(transaction);
+                transaction.clear();
+            }
+        }
+    }
 }
-
