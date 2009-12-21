@@ -1,5 +1,5 @@
-#include <QDebug>
 #include <QTextStream>
+#include <QTime>
 
 #include "typedefs.h"
 #include "arffparser.h"
@@ -9,6 +9,10 @@
 
 
 int main(int argc, char *argv[]) {
+    QTextStream cout(stdout);
+    QTime timer;
+    int duration;
+
     if (argc < 2) {
         QTextStream cerr(stderr);
         cerr << "Usage: dmp <inputfile> <minsup> <minconf>" << endl
@@ -21,8 +25,12 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    timer.start();
     FPGrowth* growth = new FPGrowth(QString(argv[1]), atoi(argv[2]), (float) atof(argv[3]));
+    duration = timer.elapsed();
     delete growth;
+
+    cout << QString("Time elapsed: %1 ms.").arg(duration);
 
     return 0;
 }
