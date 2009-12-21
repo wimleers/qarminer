@@ -95,7 +95,6 @@ void FPTree::addTransaction(Transaction transaction) {
     FPNode* currentNode = root;
 
     FPNode* nextNode;
-    Item item;
 
     foreach (Item item, transaction) {
         if (currentNode->hasChild(item.id)) {

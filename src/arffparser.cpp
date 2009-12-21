@@ -58,7 +58,7 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
             parts = line.split(",");
             // Parse "T100,1,5,0,7,?" lines.
             if (parts.size() == columnNames.size() + 1) { // Only look at valid lines.
-                for (unsigned int i = 1; i < parts.size(); i++) {
+                for (int i = 1; i < parts.size(); i++) {
                     // Trim each part.
                     parts[i] = parts[i].trimmed();
 
