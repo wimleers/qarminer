@@ -1,7 +1,3 @@
-// Disable debugging output by defining QT_NO_DEBUG_OUTPUT.
-#define QT_NO_DEBUG_OUTPUT
-#define QT_NO_WARNING_OUTPUT
-
 #include <QDebug>
 #include <QTextStream>
 
