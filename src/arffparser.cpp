@@ -18,9 +18,22 @@ a,b,d
 b,c,e
 */
 
-QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseItemNamesAndSupportCounts() {
-    QHash<ItemID, ItemName> names;
+/**
+ * Parses all item properties in the dataset:
+ *   - names
+ *   - quantities
+ *   - support counts
+ * A name and a quantity are necessary to restore the original representation
+ * of an item. Support counts are necessary to calculate frequent itemsets and
+ * to generate basic quantitative rules. Quantities are also necessary for
+ * generating advanced quantitative rules.
+ */
+QPair< QHash<ItemID, NameQuantity>, QHash<ItemID, SupportCount> > ARFFParser::parseItemProperties() {
+    QHash<ItemID, NameQuantity> nqs;
     QHash<ItemID, SupportCount> supportCounts;
+
+    // This should be used when implementing the actual parser.
+    //QHash<ItemName, QHash<Quantity, ItemID> > itemIDMapping;
 
     /*
     names.insert(0, QString("a"));
@@ -53,11 +66,19 @@ QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseI
     supportCounts.insert(5, 2);
     */
 
-    names.insert(0, QString("BOUGHTI1"));
-    names.insert(1, QString("BOUGHTI2"));
-    names.insert(2, QString("BOUGHTI3"));
-    names.insert(3, QString("BOUGHTI4"));
-    names.insert(4, QString("BOUGHTI5"));
+    NameQuantity nq;
+    nq.name = QString("BOUGHTI1");
+    nq.quantity = 1;
+    nqs.insert(0, nq);
+    nq.name = QString("BOUGHTI2");
+    nqs.insert(1, nq);
+    nq.quantity = 87;
+    nq.name = QString("BOUGHTI3");
+    nqs.insert(2, nq);
+    nq.name = QString("BOUGHTI4");
+    nqs.insert(3, nq);
+    nq.name = QString("BOUGHTI5");
+    nqs.insert(4, nq);
 
     supportCounts.insert(0, 6);
     supportCounts.insert(1, 7);
@@ -66,7 +87,7 @@ QPair< QHash<ItemID, ItemName>, QHash<ItemID, SupportCount> > ARFFParser::parseI
     supportCounts.insert(4, 2);
 
 
-    return qMakePair(names, supportCounts);
+    return qMakePair(nqs, supportCounts);
 }
 
 void ARFFParser::parseTransactions() {

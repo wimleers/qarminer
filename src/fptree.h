@@ -14,7 +14,7 @@ class FPTree {
 protected:
     FPNode* root;
     QHash<ItemID, FPNodeList> itemPaths;
-    ItemNameHash* itemNames;
+    ItemNQHash* itemNQs;
 
     void addNodeToItemPath(FPNode* node);
     void removeNodeFromItemPath(FPNode* node);
@@ -29,13 +29,13 @@ public:
     QList<ItemID> getItemIDs() const { return this->itemPaths.keys(); }
     FPNodeList getItemPath(ItemID itemID) const;
     bool itemPathContains(ItemID itemID, FPNode* node) const;
-    ItemNameHash* getItemNames() const { return this->itemNames; }
+    ItemNQHash* getItemNQs() const { return this->itemNQs; }
     SupportCount getItemSupport(ItemID item) const;
     QList<ItemList> calculatePrefixPaths(ItemID itemID) const;
 
     // Modifiers.
     void addTransaction(Transaction transaction);
-    void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
+    void setItemNQs(ItemNQHash* itemNQs) { this->itemNQs = itemNQs; }
 
     // Static (class) methods.
     static ItemCountHash calculateSupportCountsForPrefixPaths(QList<ItemList> prefixPaths);

@@ -19,7 +19,7 @@ protected:
     ItemIDFPNodeHash children;
     SupportCount count;
     ItemID itemID;
-    ItemNameHash* itemNames;
+    ItemNQHash* itemNQs;
 
 public:
     FPNode(Item = Item(), FPNode* parent = NULL);
@@ -37,7 +37,7 @@ public:
     ItemIDFPNodeHash getChildren() const;
     bool hasChild(ItemID itemID) const;
     unsigned int numChildren() const { return this->children.size(); }
-    ItemNameHash* getItemNames() const { return this->itemNames; }
+    ItemNQHash* getItemNQs() const { return this->itemNQs; }
 
     // Modifiers.
     void addChild(FPNode* child);
@@ -48,7 +48,7 @@ public:
     void decrement() { this->count--; }
     void increaseCount(SupportCount count) { this->count += count; }
     void decreaseCount(SupportCount count) { this->count -= count; }
-    void setItemNames(ItemNameHash* itemNames) { this->itemNames = itemNames; }
+    void setItemNQs(ItemNQHash* itemNQs) { this->itemNQs = itemNQs; }
 };
 
 Q_DECLARE_METATYPE(FPNode);

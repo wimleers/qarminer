@@ -102,12 +102,13 @@ void FPTree::addTransaction(Transaction transaction) {
             // There is already a node in the tree for the current transaction
             // item, so reuse it: increase its count.
             nextNode = currentNode->getChild(item.id);
+            qDebug() << "\t\t\t\t============increasing support count by " << item.supportCount;
             nextNode->increaseCount(item.supportCount);
         }
         else {
             // Create a new node and add it as a child of the current node.
             nextNode = new FPNode(item, currentNode);
-            nextNode->setItemNames(this->getItemNames());
+            nextNode->setItemNQs(this->getItemNQs());
             // Update the item path to include the new node.
             this->addNodeToItemPath(nextNode);
         }
@@ -166,12 +167,14 @@ QDebug operator<<(QDebug dbg, const FPTree &tree) {
     // Item paths.
     dbg.nospace() << "ITEM PATHS" << endl;
     FPNodeList itemPath;
-    ItemNameHash* itemNames = tree.getItemNames();
+    ItemNQHash* itemNQs = tree.getItemNQs();
     foreach (ItemID itemID, tree.getItemIDs()) {
         itemPath = tree.getItemPath(itemID);
         dbg.nospace() << " - item path for "
-                      << (*itemNames)[itemID].toStdString().c_str()
-                      << ": " << itemPath << endl;
+                      << (*itemNQs)[itemID].name.toStdString().c_str()
+                      << ":"
+                      << (*itemNQs)[itemID].quantity
+                      << "= " << itemPath << endl;
     }
 
     return dbg.nospace();

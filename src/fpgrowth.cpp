@@ -10,16 +10,16 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
 
 
 
-    qDebug() << "Preprocessing stage 1: parsing item names and support counts."
+    qDebug() << "Preprocessing stage 1: parsing item names, quantities and support counts."
              << "-" << "Time complexity: O(n).";
-    QPair<ItemNameHash, ItemCountHash> result;
-    result = this->parser.parseItemNamesAndSupportCounts();
-    this->itemNames = result.first;
+    QPair<ItemNQHash, ItemCountHash> result;
+    result = this->parser.parseItemProperties();
+    this->itemNQs = result.first;
     this->totalSupportCounts = result.second;
     this->calculateItemsSortedBySupportCount();
-    // Let the tree know the names of the items, so it can print those instead
-    // of the corresponding integers when printing the tree.
-    this->tree->setItemNames(&this->itemNames);
+    // Let the tree know the names and quantities of the items, so it can print
+    // those instead of the corresponding integers when printing the tree.
+    this->tree->setItemNQs(&this->itemNQs);
 
 
 
@@ -42,7 +42,7 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
     // Debug output.
     NamedItemIDList namedOrderedSuffixes;
     namedOrderedSuffixes.itemIDs = orderedSuffixes;
-    namedOrderedSuffixes.itemNames = this->itemNames;
+    namedOrderedSuffixes.itemNQs = this->itemNQs;
     qDebug() << "ordered suffixes:" << namedOrderedSuffixes << ", or: " <<  orderedSuffixes;
 
     QList<ItemList> frequentItemsets = this->generateFrequentItemsets(this->tree);
@@ -52,7 +52,7 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
     NamedItemList nfis;
     foreach (ItemList fis, frequentItemsets) {
         nfis.items = fis;
-        nfis.itemNames = this->itemNames;
+        nfis.itemNQs = this->itemNQs;
         qDebug() << nfis;
     }
 
@@ -66,7 +66,7 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
     // Debug output.
     foreach (ItemList frequentItemset, frequentItemsets) {
         nfis.items = frequentItemset;
-        nfis.itemNames = this->itemNames;
+        nfis.itemNQs = this->itemNQs;
         qDebug() << "support(" << nfis << ") =" << (frequentItemsetsSupportCounts[frequentItemsets.indexOf(frequentItemset)] * 1.0 / this->numberTransactions);
     }
     */
@@ -83,7 +83,7 @@ FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport, float minimumC
         nr.antecedent = rule.antecedent;
         nr.consequent = rule.consequent;
         nr.confidence = rule.confidence;
-        nr.itemNames = this->itemNames;
+        nr.itemNQs = this->itemNQs;
         qDebug() << "\t-" << nr;
     }
 }
@@ -102,6 +102,7 @@ Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
     QSet<SupportCount> supportSet;
     QList<SupportCount> supportList;
     SupportCount totalSupportCount;
+    Item item;
 
     // Fill the following variables:
     // - itemIDToItem, which maps itemIDs (key) to their corresponding items
@@ -202,7 +203,7 @@ ItemIDList FPGrowth::determineSuffixOrder() const {
 QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffix) {
     NamedItemList namedSuffix;
     namedSuffix.items = suffix;
-    namedSuffix.itemNames = this->itemNames;
+    namedSuffix.itemNQs = this->itemNQs;
     qDebug() << "---------------------------------generateFrequentItemsets()" << namedSuffix;
 
 
@@ -231,7 +232,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
         /*
         NamedItemID namedSuffixItemID;
         namedSuffixItemID.itemID = suffixItemID;
-        namedSuffixItemID.itemNames = this->itemNames;
+        namedSuffixItemID.itemNQs = this->itemNQs;
         if (suffix.size() == 0)
             qDebug() << "==========ROOT==========";
         qDebug() << "suffix item" << namedSuffixItemID << ctree->getItemSupport(suffixItemID) << (ctree->getItemSupport(suffixItemID) >= this->minimumSupport);
@@ -253,7 +254,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
             // Debug output.
             NamedItemList namedFrequentItemSet;
             namedFrequentItemSet.items = frequentItemset;
-            namedFrequentItemSet.itemNames = this->itemNames;
+            namedFrequentItemSet.itemNQs = this->itemNQs;
             qDebug() << "\t\t\t\t new frequent itemset:" << namedFrequentItemSet;
 
             // Add the new frequent itemset to the list of frequent itemsets.
@@ -267,7 +268,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
             foreach (ItemList prefixPath, prefixPaths) {
                 NamedItemList namedPrefixPath;
                 namedPrefixPath.items = prefixPath;
-                namedPrefixPath.itemNames = this->itemNames;
+                namedPrefixPath.itemNQs = this->itemNQs;
                 qDebug() << "\t" << namedPrefixPath;
             }
 
@@ -296,7 +297,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
             foreach (ItemList prefixPath, filteredPrefixPaths) {
                 NamedItemList namedPrefixPath;
                 namedPrefixPath.items = prefixPath;
-                namedPrefixPath.itemNames = this->itemNames;
+                namedPrefixPath.itemNQs = this->itemNQs;
                 qDebug() << "\t" << namedPrefixPath;
             }
 
@@ -307,7 +308,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
                 // Build the conditional FP-tree for these prefix paths, by creating
                 // a new FP-tree and pretending the prefix paths are transactions.
                 FPTree* cfptree = new FPTree();
-                cfptree->setItemNames(&this->itemNames);
+                cfptree->setItemNQs(&this->itemNQs);
                 foreach (ItemList prefixPath, filteredPrefixPaths)
                     cfptree->addTransaction(prefixPath);
                 qDebug() << *cfptree;
@@ -351,7 +352,7 @@ QList<AssociationRule> FPGrowth::generateAssociationRules(QList<ItemList> freque
             // Debug output.
             NamedItemList nfis;
             nfis.items = frequentItemset;
-            nfis.itemNames = this->itemNames;
+            nfis.itemNQs = this->itemNQs;
             qDebug() << "Generating rules for frequent itemset" << frequentItemset << nfis << " and consequents " << candidateConsequents;
             */
 

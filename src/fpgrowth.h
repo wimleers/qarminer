@@ -13,7 +13,7 @@ class FPGrowth : public QObject {
     Q_OBJECT
 protected:
     ARFFParser parser;
-    ItemNameHash itemNames;
+    ItemNQHash itemNQs;
     ItemCountHash totalSupportCounts;
     ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;

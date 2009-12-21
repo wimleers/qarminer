@@ -16,7 +16,7 @@ public:
     ARFFParser();
 
     void setFile(QString filename) { this->filename = filename; }
-    QPair<ItemNameHash, ItemCountHash> parseItemNamesAndSupportCounts();
+    QPair<QHash<ItemID, NameQuantity>, ItemCountHash> parseItemProperties();
     void parseTransactions();
 
 signals:

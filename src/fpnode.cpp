@@ -8,7 +8,7 @@ FPNode::FPNode(Item item, FPNode* parent) {
     this->itemID = item.id;
     this->count = item.supportCount;
     this->parent = parent;
-    this->itemNames = NULL;
+    this->itemNQs = NULL;
 
     // Also let the parent know it has a new child, when it is a valid parent.
     if (this->parent != NULL)
@@ -54,9 +54,9 @@ QDebug operator<<(QDebug dbg, const FPNode &node) {
         dbg.nospace() << "(NULL)";
     else {
         QString item, count, ID;
-        ItemNameHash * itemNames = node.getItemNames();
-        if (itemNames != NULL)
-            item.sprintf("%  5s", itemNames->value(node.getItemID()).toStdString().c_str());
+        ItemNQHash* itemNQs = node.getItemNQs();
+        if (itemNQs != NULL)
+            item.sprintf("%  5s:% 3d", (*itemNQs)[node.getItemID()].name.toStdString().c_str(), (*itemNQs)[node.getItemID()].quantity);
         else
             item.sprintf("%  5d", node.getItemID());
         count.sprintf("#%03d", node.getCount());

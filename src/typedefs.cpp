@@ -1,7 +1,9 @@
 #include "typedefs.h"
 
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItemID) {
-    return dbg.space() << namedItemID.itemNames[namedItemID.itemID].toStdString().c_str();
+    dbg.nospace() << namedItemID.itemNQs[namedItemID.itemID].name.toStdString().c_str() << ":" << namedItemID.itemNQs[namedItemID.itemID].quantity;
+
+    return dbg.nospace();
 }
 
 QDebug operator<<(QDebug dbg, const Item &item) {
@@ -9,7 +11,16 @@ QDebug operator<<(QDebug dbg, const Item &item) {
 }
 
 QDebug operator<<(QDebug dbg, const NamedItem &namedItem) {
-    return dbg.space() << namedItem.itemNames[namedItem.item.id].toStdString().c_str() << ":" << namedItem.item.supportCount;
+    QString itemOutput;
+
+    NamedItemID tmp;
+    tmp.itemID = namedItem.item.id;
+    tmp.itemNQs = namedItem.itemNQs;
+    QDebug(&itemOutput) << tmp;
+
+    dbg.nospace() << itemOutput.toStdString().c_str() << "=" << namedItem.item.supportCount;
+
+    return dbg.space();
 }
 
 QDebug operator<<(QDebug dbg, const Transaction &transaction) {
@@ -27,14 +38,24 @@ QDebug operator<<(QDebug dbg, const Transaction &transaction) {
 
 QDebug operator<<(QDebug dbg, const NamedTransaction &namedTransaction) {
     Transaction transaction = namedTransaction.transaction;
-    ItemNameHash itemNames = namedTransaction.itemNames;
+    QString itemOutput;
+    NamedItem tmp;
+    tmp.itemNQs = namedTransaction.itemNQs;
 
-    dbg.nospace() << "[size=" << transaction.size() << "] {";
+//    dbg.nospace() << "[size=" << transaction.size() << "] ";
+    dbg.nospace() << "{";
 
     for (int i = 0; i < transaction.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[transaction[i].id].toStdString().c_str();
+
+        // Generate output for item.
+        tmp.item.supportCount = namedTransaction.transaction[i].supportCount;
+        tmp.item.id = namedTransaction.transaction[i].id;
+        itemOutput.clear();
+        QDebug(&itemOutput) << tmp;
+
+        dbg.nospace() << itemOutput.toStdString().c_str();
     }
     dbg.nospace() << "}";
 
@@ -42,15 +63,23 @@ QDebug operator<<(QDebug dbg, const NamedTransaction &namedTransaction) {
 }
 
 QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList) {
-    ItemIDList itemIDList = namedItemIDList.itemIDs;
-    ItemNameHash itemNames = namedItemIDList.itemNames;
+    QString itemOutput;
+    NamedItemID tmp;
+    tmp.itemNQs = namedItemIDList.itemNQs;
 
-    dbg.nospace() << "[size=" << itemIDList.size() << "] {";
+//    dbg.nospace() << "[size=" << namedItemIDList.itemIDs.size() << "] ";
+    dbg.nospace() << "{";
 
-    for (int i = 0; i < itemIDList.size(); i++) {
+    for (int i = 0; i < namedItemIDList.itemIDs.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[itemIDList[i]].toStdString().c_str();
+
+        // Generate output for item.
+        tmp.itemID = namedItemIDList.itemIDs[i];
+        itemOutput.clear();
+        QDebug(&itemOutput) << tmp;
+
+        dbg.nospace() << itemOutput.toStdString().c_str();
     }
     dbg.nospace() << "}";
 
@@ -58,15 +87,24 @@ QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList) {
 }
 
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList) {
-    ItemList itemList = namedItemList.items;
-    ItemNameHash itemNames = namedItemList.itemNames;
+    QString itemOutput;
+    NamedItem tmp;
+    tmp.itemNQs = namedItemList.itemNQs;
 
-    dbg.nospace() << "[size=" << itemList.size() << "] {";
+//    dbg.nospace() << "[size=" << namedItemList.items.size() << "] ";
+    dbg.nospace() << "{";
 
-    for (int i = 0; i < itemList.size(); i++) {
+    for (int i = 0; i < namedItemList.items.size(); i++) {
         if (i > 0)
             dbg.nospace() << ", ";
-        dbg.nospace() << itemNames[itemList[i].id].toStdString().c_str() << ":" << itemList[i].supportCount;
+
+        // Generate output for item.
+        tmp.item.supportCount = namedItemList.items[i].supportCount;
+        tmp.item.id = namedItemList.items[i].id;
+        itemOutput.clear();
+        QDebug(&itemOutput) << tmp;
+
+        dbg.nospace() << itemOutput.toStdString().c_str();
     }
     dbg.nospace() << "}";
 
@@ -94,18 +132,26 @@ QDebug operator<<(QDebug dbg, const AssociationRule &associationRule) {
 }
 
 QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule) {
+    QString itemListOutput;
+    NamedItemList tmp;
+    tmp.itemNQs = namedAssociationRule.itemNQs;
+
     dbg.nospace() << "{";
-    for (int i = 0; i < namedAssociationRule.antecedent.size(); i++) {
-        if (i > 0)
-            dbg.nospace() << ", ";
-        dbg.nospace() << namedAssociationRule.itemNames[namedAssociationRule.antecedent[i].id];
-    }
+
+    // Generate output for the antecedent item list.
+    tmp.items = namedAssociationRule.antecedent;
+    itemListOutput.clear();
+    QDebug(&itemListOutput) << tmp;
+    dbg.nospace() << itemListOutput.toStdString().c_str();
+
     dbg.nospace() << "} => {";
-    for (int i = 0; i < namedAssociationRule.consequent.size(); i++) {
-        if (i > 0)
-            dbg.nospace() << ", ";
-        dbg.nospace() << namedAssociationRule.itemNames[namedAssociationRule.consequent[i].id];;
-    }
+
+    // Generate output for the consequent item list.
+    tmp.items = namedAssociationRule.consequent;
+    itemListOutput.clear();
+    QDebug(&itemListOutput) << tmp;
+    dbg.nospace() << itemListOutput.toStdString().c_str();
+
     dbg.nospace() << "}";
 
     dbg.nospace() << " (conf=" << namedAssociationRule.confidence << ")";

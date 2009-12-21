@@ -12,32 +12,38 @@ typedef uint16_t ItemID; // Supports 65536 *different* items. Change to uint32_t
 #define ROOT_ITEMID 65535 // Largest supported value for uint16_t.
 typedef QString ItemName;
 typedef uint16_t SupportCount; // Supports 65536 *total* items. Change to uint32_t or uint64_t to support more.
-typedef uint8_t Amount; // Supports amounts up to 256. Change to uint16_t, uint32_t or uint64_t to support more.
+typedef uint8_t Quantity; // Supports quantities up to 256. Change to uint16_t, uint32_t or uint64_t to support more.
 struct ItemStruct { ItemID id; SupportCount supportCount; };
 typedef ItemStruct Item;
+struct QuantitativeItemStruct { ItemID id; Quantity quantity; };
+typedef QuantitativeItemStruct QuantitativeItem;
+struct NameQuantityStruct { ItemName name; Quantity quantity; };
+typedef NameQuantityStruct NameQuantity;
+
 
 // Generic data mining container types.
-typedef QHash<ItemID, ItemName> ItemNameHash;
+typedef QHash<ItemID, NameQuantity> ItemNQHash;
 typedef QHash<ItemID, SupportCount> ItemCountHash;
 typedef QList<ItemID> ItemIDList;
 typedef QList<Item> ItemList;
 typedef QList<SupportCount> ItemCountList;
+typedef QList<QuantitativeItem> QuantitativeTransaction;
 typedef QList<Item> Transaction;
 struct AssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; };
 typedef AssociationRuleStruct AssociationRule;
 
 // Generic data mining types that support named output.
-struct NamedItemStruct { Item item; ItemNameHash itemNames; };
+struct NamedItemStruct { Item item; ItemNQHash itemNQs; };
 typedef NamedItemStruct NamedItem;
-struct NamedItemIDStruct { ItemID itemID; ItemNameHash itemNames; };
+struct NamedItemIDStruct { ItemID itemID; ItemNQHash itemNQs; };
 typedef NamedItemIDStruct NamedItemID;
-struct NamedItemListStruct { ItemList items; ItemNameHash itemNames; };
+struct NamedItemListStruct { ItemList items; ItemNQHash itemNQs; };
 typedef NamedItemListStruct NamedItemList;
-struct NamedItemIDListStruct { ItemIDList itemIDs; ItemNameHash itemNames; };
+struct NamedItemIDListStruct { ItemIDList itemIDs; ItemNQHash itemNQs; };
 typedef NamedItemIDListStruct NamedItemIDList;
-struct NamedTransactionStruct { Transaction transaction; ItemNameHash itemNames; };
+struct NamedTransactionStruct { Transaction transaction; ItemNQHash itemNQs; };
 typedef NamedTransactionStruct NamedTransaction;
-struct NamedAssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; ItemNameHash itemNames; };
+struct NamedAssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; ItemNQHash itemNQs; };
 typedef NamedAssociationRuleStruct NamedAssociationRule;
 
 
