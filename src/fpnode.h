@@ -9,17 +9,21 @@
 #include "typedefs.h"
 
 class FPNode {
+#ifdef DEBUG
 private:
     static unsigned int lastNodeID;
     static unsigned int nextNodeID() { return FPNode::lastNodeID++; }
+#endif
 
 protected:
-    unsigned int nodeID;
     FPNode* parent;
     ItemIDFPNodeHash children;
     SupportCount count;
     ItemID itemID;
+#ifdef DEBUG
+    unsigned int nodeID;
     ItemNQHash* itemNQs;
+#endif
 
 public:
     FPNode(Item = Item(), FPNode* parent = NULL);
@@ -28,7 +32,6 @@ public:
     // Accessors.
     bool isRoot() const { return this->itemID == ROOT_ITEMID; }
     bool isLeaf() const { return this->children.size() == 0; }
-    unsigned int getID() const { return this->nodeID; }
     Item getItem() const { Item item; item.id = this->itemID; item.supportCount = this->count; return item; }
     ItemID getItemID() const { return this->itemID; }
     SupportCount getCount() const { return this->count; }
@@ -37,7 +40,6 @@ public:
     ItemIDFPNodeHash getChildren() const;
     bool hasChild(ItemID itemID) const;
     unsigned int numChildren() const { return this->children.size(); }
-    ItemNQHash* getItemNQs() const { return this->itemNQs; }
 
     // Modifiers.
     void addChild(FPNode* child);
@@ -48,7 +50,13 @@ public:
     void decrement() { this->count--; }
     void increaseCount(SupportCount count) { this->count += count; }
     void decreaseCount(SupportCount count) { this->count -= count; }
+
+#ifdef DEBUG
+    // Debug output.
+    unsigned int getID() const { return this->nodeID; }
+    ItemNQHash* getItemNQs() const { return this->itemNQs; }
     void setItemNQs(ItemNQHash* itemNQs) { this->itemNQs = itemNQs; }
+#endif
 };
 
 Q_DECLARE_METATYPE(FPNode);

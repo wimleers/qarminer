@@ -337,10 +337,12 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
                 // Build the conditional FP-tree for these prefix paths, by creating
                 // a new FP-tree and pretending the prefix paths are transactions.
                 FPTree* cfptree = new FPTree();
-                cfptree->setItemNQs(&this->itemNQs);
                 foreach (ItemList prefixPath, filteredPrefixPaths)
                     cfptree->addTransaction(prefixPath);
+#ifdef DEBUG
+                cfptree->setItemNQs(&this->itemNQs);
                 qDebug() << *cfptree;
+#endif
 
                 // Attempt to generate more frequent itemsets, with the current
                 // frequent itemset as the suffix.

@@ -13,12 +13,12 @@ class FPGrowth : public QObject {
     Q_OBJECT
 protected:
     ARFFParser parser;
-    ItemNQHash itemNQs;
     ItemCountHash totalSupportCounts;
     ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;
     SupportCount minimumSupport;
     int numberTransactions;
+    ItemNQHash itemNQs;
 
     Transaction optimizeTransaction(Transaction transaction) const;
     void calculateItemsSortedBySupportCount();
@@ -29,12 +29,11 @@ protected:
 public:
     FPGrowth(QString filename, SupportCount minimumSupport);
     ~FPGrowth();
+    ItemNQHash getItemNQs() const { return this->itemNQs; }
     void preprocessingPhase1();
     void preprocessingPhase2();
     QList<ItemList> calculatingPhase1();
     QList<SupportCount> calculatingPhase2(QList<ItemList> frequentItemsets);
-
-    ItemNQHash getItemNQs() const { return this->itemNQs; }
 
     // Static (class) methods.
     static QList<SupportCount> calculateSupportCountsForFrequentItemsets(QList<ItemList> frequentItemsets);

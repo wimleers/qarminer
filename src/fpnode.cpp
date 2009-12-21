@@ -1,18 +1,23 @@
 #include "fpnode.h"
 
+#ifdef DEBUG
 // Initialize static members.
 unsigned int FPNode::lastNodeID = 0;
+#endif
 
 FPNode::FPNode(Item item, FPNode* parent) {
-    this->nodeID = FPNode::nextNodeID();
     this->itemID = item.id;
     this->count = item.supportCount;
     this->parent = parent;
-    this->itemNQs = NULL;
 
     // Also let the parent know it has a new child, when it is a valid parent.
     if (this->parent != NULL)
         this->parent->addChild(this);
+
+#ifdef DEBUG
+    this->nodeID = FPNode::nextNodeID();
+    this->itemNQs = NULL;
+#endif
 }
 
 FPNode::~FPNode() {
@@ -56,9 +61,9 @@ QDebug operator<<(QDebug dbg, const FPNode &node) {
         QString item, count, ID;
         ItemNQHash* itemNQs = node.getItemNQs();
         if (itemNQs != NULL)
-            item.sprintf("%  5s:% 3d", (*itemNQs)[node.getItemID()].name.toStdString().c_str(), (*itemNQs)[node.getItemID()].quantity);
+            item.sprintf("% 5s:% 3d", (*itemNQs)[node.getItemID()].name.toStdString().c_str(), (*itemNQs)[node.getItemID()].quantity);
         else
-            item.sprintf("%  5d", node.getItemID());
+            item.sprintf("% 5d", node.getItemID());
         count.sprintf("#%03d", node.getCount());
         ID.sprintf("0x%04d", node.getID());
         dbg.nospace() << item.toStdString().c_str() << " (" << count.toStdString().c_str() << "," << ID.toStdString().c_str() <<  ")";

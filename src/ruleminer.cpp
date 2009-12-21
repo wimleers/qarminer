@@ -20,13 +20,8 @@ QList<AssociationRule> RuleMiner::generateAssociationRules(QList<ItemList> frequ
                 consequents.append(consequent);
             }
 
-#ifdef DEBUG
             // Debug output.
-            NamedItemList nfis;
-            nfis.items = frequentItemset;
-            nfis.itemNQs = this->itemNQs;
-            qDebug() << "Generating rules for frequent itemset" << frequentItemset << nfis << " and consequents " << candidateConsequents;
-#endif
+            qDebug() << "Generating rules for frequent itemset" << frequentItemset << " and consequents " << consequents;
 
             // Attempt to generate association rules for this frequent itemset
             // and store the results.

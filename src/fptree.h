@@ -14,7 +14,9 @@ class FPTree {
 protected:
     FPNode* root;
     QHash<ItemID, FPNodeList> itemPaths;
+#ifdef DEBUG
     ItemNQHash* itemNQs;
+#endif
 
     void addNodeToItemPath(FPNode* node);
     void removeNodeFromItemPath(FPNode* node);
@@ -29,16 +31,20 @@ public:
     QList<ItemID> getItemIDs() const { return this->itemPaths.keys(); }
     FPNodeList getItemPath(ItemID itemID) const;
     bool itemPathContains(ItemID itemID, FPNode* node) const;
-    ItemNQHash* getItemNQs() const { return this->itemNQs; }
     SupportCount getItemSupport(ItemID item) const;
     QList<ItemList> calculatePrefixPaths(ItemID itemID) const;
 
     // Modifiers.
     void addTransaction(Transaction transaction);
-    void setItemNQs(ItemNQHash* itemNQs) { this->itemNQs = itemNQs; }
 
     // Static (class) methods.
     static ItemCountHash calculateSupportCountsForPrefixPaths(QList<ItemList> prefixPaths);
+
+#ifdef DEBUG
+    // Debug output.
+    ItemNQHash* getItemNQs() const { return this->itemNQs; }
+    void setItemNQs(ItemNQHash* itemNQs) { this->itemNQs = itemNQs; }
+#endif
 };
 
 Q_DECLARE_METATYPE(FPTree);

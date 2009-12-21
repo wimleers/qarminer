@@ -108,7 +108,9 @@ void FPTree::addTransaction(Transaction transaction) {
         else {
             // Create a new node and add it as a child of the current node.
             nextNode = new FPNode(item, currentNode);
+#ifdef DEBUG
             nextNode->setItemNQs(this->getItemNQs());
+#endif
             // Update the item path to include the new node.
             this->addNodeToItemPath(nextNode);
         }
