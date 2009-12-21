@@ -53,7 +53,9 @@ public:
 
 Q_DECLARE_METATYPE(FPNode);
 
+#ifdef DEBUG
 QDebug operator<<(QDebug dbg, const FPNode &node);
 QDebug operator<<(QDebug dbg, const FPNodeList &itemPath);
+#endif
 
 #endif // FPNODE_H

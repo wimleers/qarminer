@@ -43,7 +43,9 @@ public:
 
 Q_DECLARE_METATYPE(FPTree);
 
+#ifdef DEBUG
 QDebug operator<<(QDebug dbg, const FPTree &tree);
 QString dumpHelper(const FPNode &node, QString prefix = "");
+#endif
 
 #endif // FPTREE_H

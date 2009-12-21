@@ -1,5 +1,6 @@
 #include "typedefs.h"
 
+#ifdef DEBUG
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItemID) {
     dbg.nospace() << namedItemID.itemNQs[namedItemID.itemID].name.toStdString().c_str() << ":" << namedItemID.itemNQs[namedItemID.itemID].quantity;
 
@@ -158,3 +159,4 @@ QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule) 
 
     return dbg.nospace();
 }
+#endif

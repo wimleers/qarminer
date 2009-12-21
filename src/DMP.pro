@@ -3,7 +3,6 @@
 # -------------------------------------------------
 QT += testlib
 QT -= gui
-TARGET = DMP
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG += x86
@@ -13,17 +12,30 @@ SOURCES += main.cpp \
     fpnode.cpp \
     fptree.cpp \
     fpgrowth.cpp \
-    typedefs.cpp
+    typedefs.cpp \
+    ruleminer.cpp
 HEADERS += arffparser.h \
     fpnode.h \
     fptree.h \
     fpgrowth.h \
-    typedefs.h
+    typedefs.h \
+    ruleminer.h
 
 # Disable qDebug() output when in release mode.
-CONFIG(release, debug|release) {
-    DEFINES += QT_NO_DEBUG_OUTPUT
-}
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+
+# Add a DEBUG define when in debug mode.
+CONFIG(debug, debug|release):DEFINES += DEBUG
 
 # Enable compiler optimizations when building in release mode.
-QMAKE_CXXFLAGS_RELEASE = -O3 -funroll-loops -fstrict-aliasing
+QMAKE_CXXFLAGS_RELEASE = -O3 \
+    -funroll-loops \
+    -fstrict-aliasing
+
+CONFIG += debug_and_release
+
+ CONFIG(debug, debug|release) {
+     TARGET = DMP_debug
+ } else {
+     TARGET = DMP
+ }

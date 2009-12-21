@@ -48,7 +48,7 @@ void FPNode::removeChild(FPNode* child) {
 
 
 
-
+#ifdef DEBUG
 QDebug operator<<(QDebug dbg, const FPNode &node) {
     if (node.getItemID() == ROOT_ITEMID)
         dbg.nospace() << "(NULL)";
@@ -78,3 +78,4 @@ QDebug operator<<(QDebug dbg, const FPNodeList &itemPath) {
 
     return dbg.nospace();
 }
+#endif

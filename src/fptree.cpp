@@ -159,6 +159,7 @@ void FPTree::removeNodeFromItemPath(FPNode* node) {
 //------------------------------------------------------------------------------
 // Other.
 
+#ifdef DEBUG
 QDebug operator<<(QDebug dbg, const FPTree &tree) {
     // Tree.
     dbg.nospace() << "TREE" << endl;
@@ -201,3 +202,4 @@ QString dumpHelper(const FPNode &node, QString prefix) {
 
     return s;
 }
+#endif

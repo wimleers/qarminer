@@ -32,6 +32,8 @@ typedef QList<Item> Transaction;
 struct AssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; };
 typedef AssociationRuleStruct AssociationRule;
 
+
+#ifdef DEBUG
 // Generic data mining types that support named output.
 struct NamedItemStruct { Item item; ItemNQHash itemNQs; };
 typedef NamedItemStruct NamedItem;
@@ -45,6 +47,7 @@ struct NamedTransactionStruct { Transaction transaction; ItemNQHash itemNQs; };
 typedef NamedTransactionStruct NamedTransaction;
 struct NamedAssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; ItemNQHash itemNQs; };
 typedef NamedAssociationRuleStruct NamedAssociationRule;
+#endif
 
 
 // FP-growth specific types.
@@ -64,7 +67,7 @@ inline bool operator!=(const Item &i1, const Item &i2) {
     return !(i1 == i2);
 }
 
-
+#ifdef DEBUG
 // QDebug() streaming output operators.
 QDebug operator<<(QDebug dbg, const NamedItemID &namedItem);
 QDebug operator<<(QDebug dbg, const Item &item);
@@ -75,5 +78,6 @@ QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList);
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList);
 QDebug operator<<(QDebug dbg, const AssociationRule &associationRule);
 QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule);
+#endif
 
 #endif // TYPEDEFS_H
