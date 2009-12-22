@@ -1,0 +1,857 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\setcounter{page}{0}
+\end_preamble
+\use_default_options true
+\language dutch
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize a4paper
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 1
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Project data mining voor informatica
+\end_layout
+
+\begin_layout Author
+Wim Leers
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\shape italic
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Date
+Universiteit Hasselt
+\begin_inset Newline newline
+\end_inset
+
+Academiejaar 2009-2010
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\begin_inset Newpage clearpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Aanpak implementatie
+\end_layout
+
+\begin_layout Standard
+Ik heb er voor gekozen om het project in de programmeertaal C++ te schrijven,
+ omdat ook de running time van de implementatie van belang is.
+ Daarbij heb ik niet de typische STL-containers (
+\family typewriter
+vector
+\family default
+, 
+\family typewriter
+map
+\family default
+ en 
+\family typewriter
+set
+\family default
+) gebruikt, maar heb ik de container types van Qt gebruikt (
+\family typewriter
+QList
+\family default
+, 
+\family typewriter
+QHash
+\family default
+ en 
+\family typewriter
+QSet
+\family default
+) omdat deze veel beter gedocumenteerd zijn.
+ Ook voorziet Qt een zeer handig 
+\family typewriter
+foreach
+\family default
+ keyword, waarmee je eenvoudig kan itereren over de items in de containers,
+ zodat je niet iedere keer opnieuw dezelfde paar regels code moet herhalen.
+\end_layout
+
+\begin_layout Standard
+Bovendien heb ik ook het signal/slot mechanisme van Qt aangewend om geparste
+ transacties door te geven vanuit de parser naar de klasse die deze transacties
+ verwerkt.
+ Het signal/slot mechanisme is een veralgemening van het principe van de
+ callback functie.
+ Zoals wel algemeen bekend is, zijn C++ callbacks (dus naar een method van
+ een object) een absolute hel, en ook dit werd vereenvoudigd dankzij het
+ gebruik van Qt.
+\end_layout
+
+\begin_layout Standard
+Om de performance te maximaliseren en geheugengebruik te minimaliseren,
+ heb ik ervoor gekozen om telkens zo min mogelijk data door te geven.
+ Zo wordt bijvoorbeeld voor iedere combinatie van een item name (ook wel
+ attribute name genoemd) en een quantity een unieke item ID gegenereerd.
+ In alle berekeningen wordt enkel naar de item ID gekeken.
+ De mapping van item ID naar item name en quantity wordt bij het parsen
+ van de data set opgeslagen en pas bij het tonen van de resultaten weer
+ gebruikt.
+\end_layout
+
+\begin_layout Standard
+Tevens wordt van zo minimalistisch mogelijke datatypes gebruik gemaakt,
+ zo wordt een item ID in een 16-bit unsigned integer opgeslagen om geheugengebru
+ik nog verder te minimaliseren.
+ Het gevolg is wel dat slechts 65535 verschillende items ondersteund worden.
+ Dit kan aangepast worden in 
+\family typewriter
+typedefs.h
+\family default
+ — waar alle gebruikte data types gedefinieerd worden — door te veranderen
+ naar een 32-bit of zelfs 64-bit unsigned integer.
+\end_layout
+
+\begin_layout Standard
+Daarnaast heb ik ook handig gebruik gemaakt van 
+\family typewriter
+qDebug()
+\family default
+, waarmee je debug output kan definiëren die automatisch weggecompileerd
+ wordt wanneer je een release build maakt.
+ Om custom data types te kunnen weergeven d.m.v.
+
+\family typewriter
+ qDebug()
+\family default
+ moesten er overeenkomstige streaming output operators gedefinieerd worden
+ en dit heb ik dan ook gedaan.
+ Ook deze worden niet meegecompileerd in het geval van een release build
+ d.m.v.
+ defines.
+\end_layout
+
+\begin_layout Section
+Algoritmes
+\end_layout
+
+\begin_layout Standard
+Voor het minen van frequent itemsets heb ik gekozen voor het FP-growth algoritme.
+ Voor het minen van quantitative association rules heb ik het Apriori algoritme
+ gebruikt.
+ Voor regels van type A (zoals in de opgave gedefinieerd) zijn er geen verdere
+ aanpassingen nodig dankzij het feit dat ik iedere combinatie van item name
+ en quantity een unieke item ID geef en enkel hiermee verder reken.
+\end_layout
+
+\begin_layout Section
+Tijds- en plaatscomplexiteit
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+TODO
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Structuur
+\end_layout
+
+\begin_layout Standard
+De structuur zou voor zich moeten spreken:
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+typedefs.h
+\family default
+ & 
+\family typewriter
+typedefs.cpp
+\family default
+: definiëren van data types die gebruikt worden in de code.
+ Door veelvuldig gebruik van custom data types, kan de compiler ook meer
+ fouten opvangen dan wanneer overal 
+\family typewriter
+int
+\family default
+s gebruikt zouden worden.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+arffparser.h
+\family default
+ & 
+\family typewriter
+arffparser.cpp
+\family default
+: de zelf geschreven ARFF parser, die zeer beperkt is: enkel numerical attribute
+s worden ondersteund.
+ Er zijn twee public methods: 
+\family typewriter
+parseItemProperties()
+\family default
+ en 
+\family typewriter
+parseTransactions()
+\family default
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+parseItemProperties()
+\family default
+ parset enkel de eigenschappen van ieder item: het genereert unieke 
+\family typewriter
+ItemID
+\family default
+s in de volgorde dat unieke items worden tegen gekomen en returnet de 
+\family typewriter
+ItemName
+\family default
+, 
+\family typewriter
+Quantity
+\family default
+ en 
+\family typewriter
+SupportCount
+\family default
+ voor alle 
+\family typewriter
+Item
+\family default
+s.
+ Dit is nodig opdat het FP-growth algoritme het inserten van transacties
+ in de FP-tree kan optimaliseren.
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+parseTransactions()
+\family default
+ parset eenvoudigweg alle transacties en roept een callback functie aan
+ die er iets mee doet — in dit geval worden de transacties in een FP-tree
+ geïnsert.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fpnode.h
+\family default
+ & 
+\family typewriter
+fpnode.cpp
+\family default
+: een enkele node in een FP-tree wordt voorgesteld door instanties van de
+ 
+\family typewriter
+FPNode
+\family default
+ klasse.
+ Er is een pointer naar de parent 
+\family typewriter
+FPNode
+\family default
+, een 
+\family typewriter
+ItemID
+\family default
+, een 
+\family typewriter
+SupportCount
+\family default
+ en een hash met 
+\family typewriter
+ItemID
+\family default
+s als keys en 
+\family typewriter
+FPNode
+\family default
+ pointers als values om naar de kinderen van iedere 
+\family typewriter
+FPNode
+\family default
+ te wijzen.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fptree.h
+\family default
+ & 
+\family typewriter
+fptree.cpp
+\family default
+: de 
+\family typewriter
+FPTree
+\family default
+ klasse implementeert een FP-tree zoals in het boek staat uitgelegd en voorziet
+ enkele hulpfuncties.
+ De uitzondering is hoe prefix paths aangepakt worden: in plaats van rechtstreek
+s met nodes uit de tree te werken, wordt voor ieder prefix path een lijst
+ van 
+\family typewriter
+Item
+\family default
+s aangemaakt.
+ Ieder 
+\family typewriter
+Item
+\family default
+ bevat de 
+\family typewriter
+ItemID
+\family default
+ en de 
+\begin_inset Quotes eld
+\end_inset
+
+netto
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\family typewriter
+SupportCount
+\family default
+ (de 
+\family typewriter
+SupportCount
+\family default
+ van de node waarvan vertrokken werd).
+ Ieder prefix path kan dus als een transactie beschouwd worden die gewoon
+ in een nieuwe tree kan ingevoegd worden, waarbij de support informatie
+ correct overgenomen wordt.
+ Op die manier moest geen complexe logica ingebouwd worden voor het verwijderen
+ van 
+\family typewriter
+FPNode
+\family default
+s uit de 
+\family typewriter
+FPTree
+\family default
+.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+fpgrowth.h
+\family default
+ & 
+\family typewriter
+fpgrowth.cpp
+\family default
+: het FP-growth algoritme zelf wordt geïmplemeneerd in deze 
+\family typewriter
+FPGrowth
+\family default
+ klasse.
+ Voor het parsen van de dataset wordt uiteraard de 
+\family typewriter
+ARFFParser
+\family default
+ klasse gebruikt.
+ Dit is exact geïmplementeerd zoals in het boek beschreven staat, inclusief
+ de opsplitsing in verschillende fases:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Preprocessing fase 1 parset de item names, quantities en support counts.
+ De eerste twee worden nu al geparset om in de volgende stappen minder geheugen
+ te moeten gebruiken (zie eerder).
+ De laatste wordt berekend om transacties te kunnen optimaliseren voordat
+ ze in de 
+\family typewriter
+FPTree
+\family default
+ ingevoegd worden.
+\end_layout
+
+\begin_layout Itemize
+Preprocessing fase 2 parset de transacties en kan hierbij voor ieder Item
+ in de 
+\family typewriter
+Transaction
+\family default
+ twee 16-bit integers volstaan (een 
+\family typewriter
+ItemID
+\family default
+ en een 
+\family typewriter
+SupportCount
+\family default
+).
+ Voor iedere geparsete 
+\family typewriter
+Transaction
+\family default
+ wordt het 
+\family typewriter
+ARFFParser::parsedTransaction(Transaction)
+\family default
+ signal geëmit, opgevangen in het 
+\family typewriter
+FPGrowth::parsedTransaction(Transaction)
+\family default
+ slot en geoptimaliseerd door 
+\family typewriter
+FPGrowth::optimizeTransaction()
+\family default
+ alvorens ingevoegd te worden in de 
+\family typewriter
+FPTree
+\family default
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\family typewriter
+FPGrowth::optimizeTransaction()
+\family default
+ verwijdert items uit de transactie met te weinig support en herrangschikt
+ items binnen de transactie zodat die met de meeste support vooraan staan.
+ Items met dezelfde support worden steeds op dezelfde manier gerangschikt
+ om de density van de FP-tree te maximaliseren.
+\end_layout
+
+\begin_layout Itemize
+Calculating fase 1 genereert de frequent itemsets exact volgens het algoritme
+ in het boek.
+\end_layout
+
+\begin_layout Itemize
+Calculating fase 2 berekent de 
+\family typewriter
+SupportCount
+\family default
+s van iedere gevonden frequent itemset.
+ Dit gaat zeer snel, omdat ieder item in een frequent itemset nog zijn 
+\begin_inset Quotes eld
+\end_inset
+
+netto
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\family typewriter
+SupportCount
+\family default
+ met zich meedraagt.
+ Dus moet enkel het minimum van deze netto 
+\family typewriter
+SupportCount
+\family default
+s berekend worden, en dit is dan de 
+\family typewriter
+SupportCount
+\family default
+ voor de frequent itemset.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
+ruleminer.h
+\family default
+ & 
+\family typewriter
+ruleminer.cpp
+\family default
+: deze klasse bevat enkel static methods, omdat de enige 
+\emph on
+state
+\emph default
+ die doorgegeven moet worden, de 
+\family typewriter
+minimumConfidence
+\family default
+ is.
+ Rules van types A worden bijna exact gemined zoals in het boek beschreven
+ staat.
+ De uitzondering is mijn implementatie van het ap-genrules algoritme, wat
+ volgens mij een fout bevat zoals het in het boek beschreven staat, of op
+ z'n minst een grove onduidelijkheid.
+\begin_inset Newline newline
+\end_inset
+
+Algoritme 6.2 op pagina 351 in het boek genereert 1-item consequenten en
+ geeft deze door aan 
+\family typewriter
+ap-genrules
+\family default
+ (algoritme 6.3 op pagina 352 in het boek).
+ 
+\family typewriter
+ap-genrules
+\family default
+ probeert echter niet om antecedenten voor deze 1-item consequenten te genereren
+, maar kijkt meteen of het mogelijk is om nog grotere consequenten te genereren,
+ en indien dat het geval is, berekent het de antecedenten voor die grotere
+ consequenten en evalueert vervolgens de gegenereerde regel a.d.h.v.
+ zijn confidence.
+ De fout is dus volgens mij dat ook voor 1-item consequenten er antecedenten
+ moeten gegenereerd worden.
+ Als je de algoritmes 6.2 en 6.3 exact implementeert, is dat foutief.
+ Je moet algoritme 6.3 lichtjes aanpassen: genereer eerst antecedenten voor
+ de ontvangen consequenten, verwijder de consequenten die te weinig confidence
+ hebben, en 
+\emph on
+dan pas
+\emph default
+ moet er gekeken worden of nog grotere consequenten gegenereerd kunnen worden
+ (als er al nog consequenten over zijn met voldoende confidence).
+\begin_inset Newline newline
+\end_inset
+
+Voor deze aanpassing werden niet alle rules gevonden die gevonden moesten
+ worden, erna wel.
+ Dus nogmaals, het is ofwel een fout in het algoritme die we worden veronderstel
+d te ondervinden bij de implementatie, ofwel een zeer onduidelijke notatie.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+main.cpp
+\family default
+: controleert het aantal ontvangen argumeenten, maakt een 
+\family typewriter
+FPGrowth
+\family default
+ object aan, doorloopt de 4 fases van 
+\family typewriter
+FPGrowth
+\family default
+ (waarbij telkens de tijdsduur gemeten wordt), maakt vervolgens gebruik
+ van de 
+\family typewriter
+RuleMiner
+\family default
+ klasse en print ten slotte de gevonden regels uit.
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+DMP.pro
+\family default
+: een Qt project file, waarmee eenvoudig cross-platform gebuild kan worden
+\end_layout
+
+\begin_layout Section
+Builden
+\end_layout
+
+\begin_layout Standard
+Er zijn twee build modes: release en debug.
+ debug mode genereert een hoop output en gaat hoogstwaarschijnlijk irrelevant
+ zijn bij de evaluatie.
+ Om te builden is Qt vereist.
+ Ik heb gewerkt met Qt 4.5, maar met oudere versies werkt het waarschijnlijk
+ ook.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+qmake DMP.pro
+\end_layout
+
+\begin_layout Plain Layout
+
+make release
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Op Mac OS X zal het 
+\family typewriter
+qmake
+\family default
+ commando standaard een XCode project genereren i.p.v.
+ een 
+\family typewriter
+Makefile
+\family default
+.
+ Als je toch een 
+\family typewriter
+Makefile
+\family default
+ wilt genereren, gebruik dan het volgende commando:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+qmake DMP.pro -spec macx-g++
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Gebruik
+\end_layout
+
+\begin_layout Standard
+Het gebruik is zoals te verwachten:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+DMP <inputfile> <minsup> <minconf>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Concreet wordt dat:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+DMP dataset.arff 2 0.8
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+De 
+\family typewriter
+minsup
+\family default
+ parameter dient dus een integer te zijn en de 
+\family typewriter
+minconf
+\family default
+ parameter een float.
+\end_layout
+
+\end_body
+\end_document
