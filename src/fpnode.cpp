@@ -31,7 +31,7 @@ bool FPNode::hasChild(ItemID itemID) const {
     return this->children.contains(itemID);
 }
 
-FPNode * FPNode::getChild(ItemID itemID) const {
+FPNode* FPNode::getChild(ItemID itemID) const {
     if (this->children.contains(itemID))
         return this->children.value(itemID);
     else

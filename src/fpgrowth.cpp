@@ -39,16 +39,6 @@ void FPGrowth::preprocessingPhase2() {
 
 
 QList<ItemList> FPGrowth::calculatingPhase1() {
-    ItemIDList orderedSuffixes = this->determineSuffixOrder();
-
-#ifdef DEBUG
-    // Debug output.
-    NamedItemIDList namedOrderedSuffixes;
-    namedOrderedSuffixes.itemIDs = orderedSuffixes;
-    namedOrderedSuffixes.itemNQs = this->itemNQs;
-    qDebug() << "ordered suffixes:" << namedOrderedSuffixes << ", or: " <<  orderedSuffixes;
-#endif
-
     QList<ItemList> frequentItemsets = this->generateFrequentItemsets(this->tree);
 
 #ifdef DEBUG
@@ -217,10 +207,6 @@ void FPGrowth::calculateItemsSortedBySupportCount() {
         qSort(itemIDs);
         this->itemsSortedByTotalSupportCount.append(itemIDs);
     }
-}
-
-ItemIDList FPGrowth::determineSuffixOrder() const {
-    return this->itemsSortedByTotalSupportCount;
 }
 
 QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffix) {

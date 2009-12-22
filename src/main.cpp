@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         QTextStream cerr(stderr);
-        cerr << "Usage: dmp <inputfile> <minsup> <minconf>" << endl
+        cerr << "Usage: DMP <inputfile> <minsup> <minconf>" << endl
              << "\t- inputfile must be a .arff file with numeric attributes" << endl
              << "\t- minsup must be an unsigned integer" << endl
              << "\t- minconf must be a float";
@@ -46,8 +46,7 @@ int main(int argc, char *argv[]) {
     cout << "|- PREPROCESSING" << endl;
 
     // Stage 1.
-    cout << "  |- Preprocessing stage 1: parsing item names, quantities and support counts."
-         << " Time complexity: O(n)." << endl;
+    cout << "  |- Preprocessing stage 1: parsing item names, quantities and support counts." << endl;
     timer.start();
     phaseTimer.start();
     fpgrowth->preprocessingPhase1();
@@ -56,8 +55,7 @@ int main(int argc, char *argv[]) {
 
 
     // Stage 2.
-    cout << "  |- Preprocessing stage 2: parsing transactions and building an FP-tree."
-         << " Time complexity: O(n)." << endl;
+    cout << "  |- Preprocessing stage 2: parsing transactions and building an FP-tree." << endl;
     phaseTimer.start();
     fpgrowth->preprocessingPhase2();
     phaseDuration = phaseTimer.elapsed();
@@ -68,16 +66,14 @@ int main(int argc, char *argv[]) {
     cout << "|- CALCULATING" << endl;
 
     // Stage 3.
-    cout << "  |- Calculating stage 1: frequent itemset generation."
-         << " Time complexity: [not yet available]." << endl;
+    cout << "  |- Calculating stage 1: frequent itemset generation." << endl;
     phaseTimer.start();
     frequentItemsets = fpgrowth->calculatingPhase1();
     phaseDuration = phaseTimer.elapsed();
     cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
 
     // Stage 4.
-    cout << "  |- Calculating stage 2: calculate support for frequent itemsets."
-         << " Time complexity: O(n)." << endl;
+    cout << "  |- Calculating stage 2: calculate support for frequent itemsets." << endl;
     phaseTimer.start();
     frequentItemsetsSupportCounts = fpgrowth->calculatingPhase2(frequentItemsets);
     phaseDuration = phaseTimer.elapsed();
@@ -85,8 +81,7 @@ int main(int argc, char *argv[]) {
 
 
     // Stage 5.
-    cout << "  |- Calculating stage 3: rule generation"
-         << " Time complexity: [not yet available]." << endl;
+    cout << "  |- Calculating stage 3: rule generation" << endl;
     phaseTimer.start();
     QList<AssociationRule> associationRules = RuleMiner::generateAssociationRules(frequentItemsets, frequentItemsetsSupportCounts, minimumConfidence);
     phaseDuration = phaseTimer.elapsed();

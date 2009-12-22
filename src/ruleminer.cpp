@@ -59,7 +59,7 @@ QList<AssociationRule> RuleMiner::generateAssociationRulesForFrequentItemset(Ite
 
         // If the confidence is sufficiently high, we've found an association
         // rule that meets our requirements.
-//        qDebug () << "confidence" << confidence << ", frequent itemset support" << frequentItemsetSupportCount << ", antecedent support" << antecedentSupportCount << ", antecedent" << antecedent << ", consequent" << consequent;
+        qDebug () << "confidence" << confidence << ", frequent itemset support" << frequentItemsetSupportCount << ", antecedent support" << antecedentSupportCount << ", antecedent" << antecedent << ", consequent" << consequent;
         if (confidence > minimumConfidence) {
             AssociationRule rule = {antecedent, consequent, confidence};
             associationRules.append(rule);
