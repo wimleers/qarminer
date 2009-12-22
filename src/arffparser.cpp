@@ -14,11 +14,12 @@ ARFFParser::ARFFParser() {
  * to generate basic quantitative rules. Quantities are also necessary for
  * generating advanced quantitative rules.
  */
-QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
-    QList<ItemName> columnNames;
+QPair<QPair<ItemNQHash, ItemCountHash>, unsigned int> ARFFParser::parseItemProperties() {
+    QHash<int, ItemName> columnNames;
     QHash<ItemID, NameQuantity> nqs;
     QHash<ItemID, SupportCount> supportCounts;
     bool dataSection = false;
+    this->numColumns = 0;
 
     QFile file(this->filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -31,7 +32,9 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
     ItemName itemName;
     Quantity quantity;
     NameQuantity nq;
-    unsigned int columnNameIndex;
+    int columnIndex = 0;
+    int columnNameIndex = 0;
+    unsigned int numberTransactions = 0;
 
     while (!in.atEnd()) {
         line = in.readLine();
@@ -47,18 +50,32 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
         // Parse the header section.
         if (!dataSection) {
             parts = line.split(" ");
-            // Parse "@attribute BoughtI1 numeric" lines and keep the "BoughtI1".
-            if (parts.size() >= 3 && parts[2].compare("numeric") == 0) {
-                columnNames.append(parts[1]);
-                QHash<Quantity, ItemID> hash;
-                this->itemIDMapping.insert(columnNames.size() - 1, hash);
+            if (parts[0].compare("@attribute") == 0) {
+                // Parse "@attribute BoughtI1 numeric" lines and store the "BoughtI1".
+                if (parts.size() >= 3 && parts[2].compare("numeric") == 0) {
+                    columnNames.insert(columnIndex, parts[1]);
+                    QHash<Quantity, ItemID> hash;
+                    this->itemIDMapping.insert(columnNameIndex, hash);
+                    columnNameIndex++;
+                }
+                else {
+                    // Remember which columns are irrelevant to us.
+                    this->irrelevantColumns.append(columnIndex);
+                }
+                columnIndex++;
+                this->numColumns++;
             }
         }
         else {
             parts = line.split(",");
             // Parse "T100,1,5,0,7,?" lines.
-            if (parts.size() == columnNames.size() + 1) { // Only look at valid lines.
-                for (int i = 1; i < parts.size(); i++) {
+            if (parts.size() == this->numColumns) { // Only look at valid lines.
+                numberTransactions++;
+                for (int i = 0; i < parts.size(); i++) {
+                    // Skip non-numerical columns.
+                    if (this->irrelevantColumns.contains(i))
+                        continue;
+
                     // Trim each part.
                     parts[i] = parts[i].trimmed();
 
@@ -66,16 +83,19 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
                     if (parts[i].compare("?") == 0)
                         continue;
 
-                    // Retrieve the item name for the current column and parse
-                    // the quantity for it.
-                    columnNameIndex = i - 1;
-                    itemName = columnNames[columnNameIndex];
                     quantity = atoi(parts[i].toStdString().c_str());
+
+                    // A quantity of zero is essentially the same as "no value"
+                    // (i.e. the question mark). Skip this item.
+                    if (quantity == 0)
+                        continue;
+
+                    itemName = columnNames[i];
 
                     // Check if an item ID has already been created for this
                     // (ItemName, Quantity) combination. Create one if necessary.
-                    if (itemIDMapping[columnNameIndex].contains(quantity))
-                        itemID = itemIDMapping[columnNameIndex][quantity];
+                    if (itemIDMapping[i].contains(quantity))
+                        itemID = itemIDMapping[i][quantity];
                     else {
                         itemID = nextItemID++;
                         // Name and quantity.
@@ -84,7 +104,7 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
                         nqs.insert(itemID, nq);
                         // Store the itemID: it will be necessary when parsing
                         // transactions.
-                        this->itemIDMapping[columnNameIndex].insert(quantity, itemID);
+                        this->itemIDMapping[i].insert(quantity, itemID);
                     }
 
                     // Increase the support count.
@@ -94,7 +114,7 @@ QPair<ItemNQHash, ItemCountHash> ARFFParser::parseItemProperties() {
         }
     }
 
-    return qMakePair(nqs, supportCounts);
+    return qMakePair(qMakePair(nqs, supportCounts), numberTransactions);
 }
 
 void ARFFParser::parseTransactions() {
@@ -111,7 +131,6 @@ void ARFFParser::parseTransactions() {
     Transaction transaction;
     Item item;
     item.supportCount = 1; // The support count for each parsed item is 1: it can never be >1 within a single transaction.
-    unsigned int columnNameIndex;
 
     while (!in.atEnd()) {
         line = in.readLine();
@@ -128,8 +147,12 @@ void ARFFParser::parseTransactions() {
         if (dataSection) {
             parts = line.split(",");
             // Parse "T100,1,5,0,7,?" lines.
-            if (parts.size() == this->itemIDMapping.size() + 1) { // Only look at valid lines.
-                for (int i = 1; i < parts.size(); i++) {
+            if (parts.size() == this->numColumns) { // Only look at valid lines.
+                for (int i = 0; i < parts.size(); i++) {
+                    // Skip non-numerical columns.
+                    if (this->irrelevantColumns.contains(i))
+                        continue;
+
                     // Trim each part.
                     parts[i] = parts[i].trimmed();
 
@@ -137,9 +160,14 @@ void ARFFParser::parseTransactions() {
                     if (parts[i].compare("?") == 0)
                         continue;
 
-                    columnNameIndex = i - 1;
                     quantity = atoi(parts[i].toStdString().c_str());
-                    item.id = this->itemIDMapping[columnNameIndex][quantity];
+
+                    // A quantity of zero is essentially the same as "no value"
+                    // (i.e. the question mark). Skip this item.
+                    if (quantity == 0)
+                        continue;
+
+                    item.id = this->itemIDMapping[i][quantity];
                     transaction.append(item);
                 }
 

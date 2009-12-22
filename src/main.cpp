@@ -18,15 +18,15 @@ int main(int argc, char *argv[]) {
     QList<SupportCount> frequentItemsetsSupportCounts;
 
     QString filename;
-    SupportCount minimumSupport;
+    float minimumSupport;
     float minimumConfidence;
 
     if (argc < 2) {
         QTextStream cerr(stderr);
         cerr << "Usage: DMP <inputfile> <minsup> <minconf>" << endl
              << "\t- inputfile must be a .arff file with numeric attributes" << endl
-             << "\t- minsup must be an unsigned integer" << endl
-             << "\t- minconf must be a float";
+             << "\t- minsup must be a float (percentage)" << endl
+             << "\t- minconf must be a float (percentage)";
 
 
         cerr.flush();
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     }
     else {
         filename = QString(argv[1]);
-        minimumSupport = atoi(argv[2]);
+        minimumSupport = atof(argv[2]);
         minimumConfidence = atof(argv[3]);
     }
 

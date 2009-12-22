@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QSet>
 #include <QString>
+#include <math.h>
 #include "arffparser.h"
 #include "fpnode.h"
 #include "fptree.h"
@@ -16,7 +17,8 @@ protected:
     ItemCountHash totalSupportCounts;
     ItemIDList itemsSortedByTotalSupportCount;
     FPTree* tree;
-    SupportCount minimumSupport;
+    float minimumSupport;
+    SupportCount minimumSupportAbsolute;
     int numberTransactions;
     ItemNQHash itemNQs;
 
@@ -27,7 +29,7 @@ protected:
     QList<ItemList> generateFrequentItemsets(FPTree* tree, ItemList suffix = ItemList());
 
 public:
-    FPGrowth(QString filename, SupportCount minimumSupport);
+    FPGrowth(QString filename, float minimumSupport);
     ~FPGrowth();
     ItemNQHash getItemNQs() const { return this->itemNQs; }
     void preprocessingPhase1();

@@ -192,7 +192,7 @@ QString dumpHelper(const FPNode &node, QString prefix) {
 
     // Print all child nodes.
     if (node.numChildren() > 0) {
-        foreach (FPNode * child, node.getChildren()) {
+        foreach (FPNode* child, node.getChildren()) {
             if (firstChild)
                 s += prefix;
             else

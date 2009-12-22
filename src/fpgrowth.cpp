@@ -1,8 +1,9 @@
 #include "fpgrowth.h"
 
-FPGrowth::FPGrowth(QString filename, SupportCount minimumSupport) {
+FPGrowth::FPGrowth(QString filename, float minimumSupport) {
     this->parser.setFile(filename);
     this->minimumSupport = minimumSupport;
+    this->minimumSupportAbsolute = 0;
     this->numberTransactions = 0;
     this->tree = new FPTree();
 }
@@ -12,10 +13,13 @@ FPGrowth::~FPGrowth() {
 }
 
 void FPGrowth::preprocessingPhase1() {
-    QPair<ItemNQHash, ItemCountHash> result;
+    QPair<QPair<ItemNQHash, ItemCountHash>, unsigned int> result;
     result = this->parser.parseItemProperties();
-    this->itemNQs = result.first;
-    this->totalSupportCounts = result.second;
+    this->itemNQs = result.first.first;
+    this->totalSupportCounts = result.first.second;
+    this->numberTransactions = result.second;
+    this->minimumSupportAbsolute = ceil(this->minimumSupport * this->numberTransactions);
+    qDebug() << "min sup abs" << this->minimumSupportAbsolute << this->minimumSupport << this->numberTransactions;
     this->calculateItemsSortedBySupportCount();
 
 #ifdef DEBUG
@@ -131,7 +135,7 @@ Transaction FPGrowth::optimizeTransaction(Transaction transaction) const {
         totalSupportCount = this->totalSupportCounts[item.id];
 
         // Discard items that are total infrequent.
-        if (totalSupportCount < this->minimumSupport)
+        if (totalSupportCount < this->minimumSupportAbsolute)
             continue;
 
         // Fill itemsBySupport by using QHash::insertMulti(), which allows for
@@ -252,7 +256,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
         // support, it will be added as a frequent itemset (appended with the
         // received suffix of course).
         SupportCount suffixItemSupport = ctree->getItemSupport(suffixItemID);
-        if (suffixItemSupport >= this->minimumSupport) {
+        if (suffixItemSupport >= this->minimumSupportAbsolute) {
             // The current suffix item, when prepended to the received suffix,
             // is the next frequent itemset. Additionally, it will serve as the
             // next suffix.
@@ -298,7 +302,7 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
                 prefixPath = prefixPaths[i];
                 for (int j = 0; j < prefixPath.size() - 1; j++) {
                     item = prefixPath[j];
-                    if (prefixPathsSupportCounts[item.id] >= this->minimumSupport)
+                    if (prefixPathsSupportCounts[item.id] >= this->minimumSupportAbsolute)
                         filteredPrefixPath.append(item);
                 }
                 if (filteredPrefixPath.size() > 0)
@@ -323,10 +327,12 @@ QList<ItemList> FPGrowth::generateFrequentItemsets(FPTree* ctree, ItemList suffi
                 // Build the conditional FP-tree for these prefix paths, by creating
                 // a new FP-tree and pretending the prefix paths are transactions.
                 FPTree* cfptree = new FPTree();
+#ifdef DEBUG
+                cfptree->setItemNQs(&(this->itemNQs));
+#endif
                 foreach (ItemList prefixPath, filteredPrefixPaths)
                     cfptree->addTransaction(prefixPath);
 #ifdef DEBUG
-                cfptree->setItemNQs(&this->itemNQs);
                 qDebug() << *cfptree;
 #endif
 

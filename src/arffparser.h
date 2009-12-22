@@ -15,12 +15,14 @@ class ARFFParser : public QObject {
 protected:
     QString filename;
     QHash<unsigned int, QHash<Quantity, ItemID> > itemIDMapping;
+    QList<int> irrelevantColumns;
+    int numColumns;
 
 public:
     ARFFParser();
 
     void setFile(QString filename) { this->filename = filename; }
-    QPair<ItemNQHash, ItemCountHash> parseItemProperties();
+    QPair<QPair<ItemNQHash, ItemCountHash>, unsigned int> parseItemProperties();
     void parseTransactions();
 
 signals:

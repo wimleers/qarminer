@@ -88,7 +88,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
@@ -118,7 +117,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
@@ -146,7 +144,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
@@ -179,7 +176,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
@@ -210,7 +206,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
@@ -238,7 +233,6 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
