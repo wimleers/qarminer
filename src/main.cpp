@@ -11,11 +11,12 @@
 
 int main(int argc, char *argv[]) {
     QTextStream cout(stdout);
-    QTime timer, phaseTimer;
+    QTime phaseTimer;
     FPGrowth* fpgrowth;
-    int duration, phaseDuration;
+    int duration;
     QList<ItemList> frequentItemsets;
     QList<SupportCount> frequentItemsetsSupportCounts;
+    QList<int> durations;
 
     QString filename;
     float minimumSupport;
@@ -47,19 +48,18 @@ int main(int argc, char *argv[]) {
 
     // Stage 1.
     cout << "  |- Preprocessing stage 1: parsing item names, quantities and support counts." << endl;
-    timer.start();
     phaseTimer.start();
     fpgrowth->preprocessingPhase1();
-    phaseDuration = phaseTimer.elapsed();
-    cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
     // Stage 2.
     cout << "  |- Preprocessing stage 2: parsing transactions and building an FP-tree." << endl;
     phaseTimer.start();
     fpgrowth->preprocessingPhase2();
-    phaseDuration = phaseTimer.elapsed();
-    cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
     // Calculating stages.
@@ -69,28 +69,36 @@ int main(int argc, char *argv[]) {
     cout << "  |- Calculating stage 1: frequent itemset generation." << endl;
     phaseTimer.start();
     frequentItemsets = fpgrowth->calculatingPhase1();
-    phaseDuration = phaseTimer.elapsed();
-    cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
     // Stage 4.
     cout << "  |- Calculating stage 2: calculate support for frequent itemsets." << endl;
     phaseTimer.start();
     frequentItemsetsSupportCounts = fpgrowth->calculatingPhase2(frequentItemsets);
-    phaseDuration = phaseTimer.elapsed();
-    cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
     // Stage 5.
     cout << "  |- Calculating stage 3: rule generation" << endl;
     phaseTimer.start();
     QList<AssociationRule> associationRules = RuleMiner::generateAssociationRules(frequentItemsets, frequentItemsetsSupportCounts, minimumConfidence);
-    phaseDuration = phaseTimer.elapsed();
-    cout << QString("    |- Duration: %1 ms.").arg(phaseDuration) << endl;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
-    duration = timer.elapsed();
-    cout << QString("TOTAL TIME: %1 ms.").arg(duration) << endl;
+    // Actual processing time.
+    duration = 0;
+    for (int i = 1; i < durations.size(); i++)
+        duration += durations[i];
+    cout << QString("ACTUAL PROCESSING TIME: %1 ms (excludes preprocesing stage 1)").arg(duration) << endl;
 
+    // Total time.
+    duration = 0;
+    foreach (int d, durations)
+        duration += d;
+    cout << QString("TOTAL PROCESSING TIME: %1 ms (all stages)").arg(duration) << endl;
 
     // Output rules of type A.
     cout << endl << "Rules of type A:" << endl;
