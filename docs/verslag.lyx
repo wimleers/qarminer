@@ -319,6 +319,38 @@ Voor het minen van frequent itemsets heb ik gekozen voor het FP-growth algoritme
  en quantity een unieke item ID geef en enkel hiermee verder reken.
 \end_layout
 
+\begin_layout Standard
+Voor regels van type B en C wordt één en hetzelfde algoritme gebruikt.
+ De gevonden frequent itemsets voor regels van type A worden gemerged indien
+ hun namen overeenkomen en hun quantities een aaneengesloten reeks getallen
+ vormen (dus: een interval).
+ Uit deze gemergde frequente itemsets worden vervolgens association rules
+ gemined, met precies dezelfde code als voor regels van type A.
+\begin_inset Newline newline
+\end_inset
+
+Ik vond het persoonlijk een stuk duidelijker (en accurater) om intervallen
+ te tonen van het type 
+\begin_inset Formula $[x,y]|x,y\in\mathbb{N}$
+\end_inset
+
+ in plaats van het type 
+\begin_inset Formula $\{]0,x],[x,\infty[\}|x\in\mathbb{N}$
+\end_inset
+
+ (wat een voorstelling is die synoniem is met wat in de opgave beschreven
+ staat).
+ Een neveneffect is natuurlijk dat de berekeningen voor regels van types
+ B en C hetzelfde zijn.
+ Het is nog steeds perfect mogelijk om regels van type B en C zoals in de
+ opgave te 
+\emph on
+interpreteren
+\emph default
+ uit de intervallen, maar zo kan tenminste de foutenmarge/ruwheid van schatting
+ zelf gekozen worden.
+\end_layout
+
 \begin_layout Section
 Tijds- en plaatscomplexiteit
 \end_layout
@@ -713,6 +745,72 @@ d te ondervinden bij de implementatie, ofwel een zeer onduidelijke notatie.
 \begin_layout Itemize
 
 \family typewriter
+intervaltransformer.h
+\family default
+ & 
+\family typewriter
+intervaltransformer.cpp
+\family default
+: de bedoeling van deze klasse is om gegeven frequente itemsets zoals hierboven
+ (dus met een 
+\family typewriter
+ItemID
+\family default
+ voor iedere combinatie van een 
+\family typewriter
+ItemName
+\family default
+ en 
+\family typewriter
+Quantity
+\family default
+) te transformeren naar frequente itemsets die geschikt zijn voor interval-gebas
+eerde quantative association rules (of zoals het in de opgave staat: regels
+ van type B en C).
+ De resulterende frequente itemsets kunen rechtstreeks aan 
+\family typewriter
+RuleMiner
+\family default
+ meegegeven worden en zo zullen de regels van type B en C gevonden worden.
+ Een nauwkeurigere beschrijving:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+verwijder de frequente itemsets van grootte 1 omdat deze niet kunnen resulteren
+ in regels
+\end_layout
+
+\begin_layout Itemize
+zoek alle unieke item name combinaties (per frequente itemset) en houd pointers
+ naar alle frequente itemsets die aan deze combinatie voldoen
+\end_layout
+
+\begin_layout Itemize
+genereer iedere mogelijke combinatie voor iedere verzameling van frequente
+ itemsets met dezelfde item names
+\end_layout
+
+\begin_layout Itemize
+merge alle frequente itemset combinaties (waarbij de quantities en support
+ counts onthouden worden zodat we deze kunnen valideren in de volgende stap)
+\end_layout
+
+\begin_layout Itemize
+behoud enkel gemergde frequent itemsets waarvan de intervallen aansluitend
+ zijn
+\end_layout
+
+\begin_layout Itemize
+genereer een item ID voor ieder item in een van de gevonden frequent itemsets
+ en sla de mapping naar item name en quantities (kleinste en grootste van
+ het interval) op
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+
+\family typewriter
 main.cpp
 \family default
 : controleert het aantal ontvangen argumeenten, maakt een 
@@ -737,6 +835,260 @@ RuleMiner
 DMP.pro
 \family default
 : een Qt project file, waarmee eenvoudig cross-platform gebuild kan worden
+\end_layout
+
+\begin_layout Section
+Tests:
+\end_layout
+
+\begin_layout Itemize
+Met de gegeven dataset (van 109 transacties, met minimum support 10% en
+ minimum confidence 90%), wordt het correct resultaat gevonden 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+ACTUAL PROCESSING TIME: 3 ms (excludes preprocesing stage 1)
+\end_layout
+
+\begin_layout Plain Layout
+TOTAL PROCESSING TIME: 4 ms (all stages)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+Rules of type A:
+\end_layout
+
+\begin_layout Plain Layout
+	{BoughtI4=2, BoughtI5=5} => {BoughtI3=9} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+	{BoughtI3=9, BoughtI5=5} => {BoughtI4=2} (conf=0.916667)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+Rules of types B & C:
+\end_layout
+
+\begin_layout Plain Layout
+	None.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Als diezelfde dataset duizendmaal gekopieerd wordt, wordt natuurlijk hetzelfde
+ gevonden, maar duren de berekeningen langer:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ACTUAL PROCESSING TIME: 1782 ms (excludes preprocesing stage 1)
+\end_layout
+
+\begin_layout Plain Layout
+
+TOTAL PROCESSING TIME: 2692 ms (all stages)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Rules of type A:
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI4=2, BoughtI5=5} => {BoughtI3=9} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI3=9, BoughtI5=5} => {BoughtI4=2} (conf=0.916667)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Rules of types B & C:
+\end_layout
+
+\begin_layout Plain Layout
+
+	None.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Ten slotte, een eigen dataset voor het testen van regels van types B en
+ C (eveneens met minimum support 10% en minimum confidence 90%):
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+@relation basket1
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+@attribute BoughtI1 numeric
+\end_layout
+
+\begin_layout Plain Layout
+@attribute BoughtI2 numeric
+\end_layout
+
+\begin_layout Plain Layout
+@data
+\end_layout
+
+\begin_layout Plain Layout
+5,2
+\end_layout
+
+\begin_layout Plain Layout
+6,1
+\end_layout
+
+\begin_layout Plain Layout
+8,4
+\end_layout
+
+\begin_layout Plain Layout
+9,5
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+geeft het volgende resultaat:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ACTUAL PROCESSING TIME: 1 ms (excludes preprocesing stage 1)
+\end_layout
+
+\begin_layout Plain Layout
+
+TOTAL PROCESSING TIME: 1 ms (all stages)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Rules of type A:
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2=2} => {BoughtI1=5} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1=5} => {BoughtI2=2} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2=1} => {BoughtI1=6} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1=6} => {BoughtI2=1} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2=4} => {BoughtI1=8} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1=8} => {BoughtI2=4} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2=5} => {BoughtI1=9} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1=9} => {BoughtI2=5} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Rules of types B & C:
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2 in [1,2]} => {BoughtI1 in [5,6]} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1 in [5,6]} => {BoughtI2 in [1,2]} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI2 in [4,5]} => {BoughtI1 in [8,9]} (conf=1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{BoughtI1 in [8,9]} => {BoughtI2 in [4,5]} (conf=1)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -833,7 +1185,7 @@ status open
 
 \begin_layout Plain Layout
 
-DMP dataset.arff 2 0.8
+DMP dataset.arff 0.1 0.9
 \end_layout
 
 \end_inset
@@ -846,11 +1198,11 @@ De
 \family typewriter
 minsup
 \family default
- parameter dient dus een integer te zijn en de 
+ parameter dient dus een float te zijn en hetzelfde geldt voor de 
 \family typewriter
 minconf
 \family default
- parameter een float.
+ parameter.
 \end_layout
 
 \end_body
