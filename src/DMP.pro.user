@@ -172,16 +172,16 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">Apple_PubSub_Socket_Render=/tmp/launch-xbAXRz/Render</value>
+    <value type="QString">Apple_PubSub_Socket_Render=/tmp/launch-2W3SWX/Render</value>
+    <value type="QString">CA_XLOG_KEY=127</value>
     <value type="QString">COMMAND_MODE=legacy</value>
-    <value type="QString">DISPLAY=/tmp/launch-zmIx5X/:0</value>
+    <value type="QString">DISPLAY=/tmp/launch-oDsHGt/:0</value>
     <value type="QString">HOME=/Users/wimleers</value>
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/launch-aSUOM1/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
     <value type="QString">USER=wimleers</value>
     <value type="QString">__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
@@ -194,7 +194,7 @@
     <value type="QString">CONFIG+=release</value>
    </valuelist>
    <value key="abstractProcess.command" type="QString">/usr/bin/qmake</value>
-   <value key="abstractProcess.enabled" type="bool">false</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
    <value key="abstractProcess.workingDirectory" type="QString">/Users/wimleers/School/DM/project/svn/src</value>
   </valuemap>
  </data>
@@ -203,16 +203,16 @@
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">Apple_PubSub_Socket_Render=/tmp/launch-xbAXRz/Render</value>
+    <value type="QString">Apple_PubSub_Socket_Render=/tmp/launch-2W3SWX/Render</value>
+    <value type="QString">CA_XLOG_KEY=127</value>
     <value type="QString">COMMAND_MODE=legacy</value>
-    <value type="QString">DISPLAY=/tmp/launch-zmIx5X/:0</value>
+    <value type="QString">DISPLAY=/tmp/launch-oDsHGt/:0</value>
     <value type="QString">HOME=/Users/wimleers</value>
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
-    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
-    <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
+    <value type="QString">SSH_AUTH_SOCK=/tmp/launch-aSUOM1/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>
     <value type="QString">USER=wimleers</value>
     <value type="QString">__CF_USER_TEXT_ENCODING=0x1F5:0:0</value>
@@ -238,6 +238,7 @@
     <value type="QString">LOGNAME=wimleers</value>
     <value type="QString">PATH=/Developer/Tools/Qt:/usr/bin:/bin:/usr/sbin:/sbin</value>
     <value type="QString">QTDIR=/usr/local/Qt4.5</value>
+    <value type="QString">SECURITYSESSIONID=225fa2</value>
     <value type="QString">SHELL=/bin/bash</value>
     <value type="QString">SSH_AUTH_SOCK=/tmp/launch-htUW8h/Listeners</value>
     <value type="QString">TMPDIR=/var/folders/Dz/DzSJmQlWGce1iXGJUQS2J++++TI/-Tmp-/</value>

@@ -159,4 +159,11 @@ QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule) 
 
     return dbg.nospace();
 }
+
+QDebug operator<<(QDebug dbg, const IntervalAssociationRuleItem &intervalAssociationRuleItem) {
+    dbg.nospace() << intervalAssociationRuleItem.itemName << " " << intervalAssociationRuleItem.quantities << " = " << intervalAssociationRuleItem.supportCounts;
+
+    return dbg.nospace();
+}
+
 #endif

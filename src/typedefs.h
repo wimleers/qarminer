@@ -31,6 +31,10 @@ typedef QList<QuantitativeItem> QuantitativeTransaction;
 typedef QList<Item> Transaction;
 struct AssociationRuleStruct { ItemList antecedent; ItemList consequent; float confidence; };
 typedef AssociationRuleStruct AssociationRule;
+struct IntervalAssociationRuleItemStruct { ItemName itemName; QList<Quantity> quantities; QList<SupportCount> supportCounts; };
+typedef IntervalAssociationRuleItemStruct IntervalAssociationRuleItem;
+struct IntervalAssociationRuleStruct { QList<IntervalAssociationRuleItem> antecedent; QList<IntervalAssociationRuleItem> consequent; float confidence; };
+typedef IntervalAssociationRuleStruct IntervalAssociationRule;
 
 
 #ifdef DEBUG
@@ -78,6 +82,7 @@ QDebug operator<<(QDebug dbg, const NamedItemIDList &namedItemIDList);
 QDebug operator<<(QDebug dbg, const NamedItemList &namedItemList);
 QDebug operator<<(QDebug dbg, const AssociationRule &associationRule);
 QDebug operator<<(QDebug dbg, const NamedAssociationRule &namedAssociationRule);
+QDebug operator<<(QDebug dbg, const IntervalAssociationRuleItem &intervalAssociationRuleItem);
 #endif
 
 #endif // TYPEDEFS_H

@@ -31,12 +31,19 @@ QList<AssociationRule> RuleMiner::generateAssociationRules(QList<ItemList> frequ
     return associationRules;
 }
 
+
+//------------------------------------------------------------------------------
+// Protected static methods.
+
 /**
  * A.k.a. "ap-genrules", but slightly different to fix a bug in that algorithm:
  * it accepts consequents of size 1, but doesn't generate antecedents for these,
  * instead it immediately generates consequents of size 2. Algorithm 6.3 on page
  * 352 in the textbook.
  * This variation of that algorithm fixes that.
+ *
+ * @param frequentItemsetsSupportCounts may contain an empty list, then the
+ *        support counts will be calculated on-the-fly.
  */
 QList<AssociationRule> RuleMiner::generateAssociationRulesForFrequentItemset(ItemList frequentItemset, QList<ItemList> consequents, QList<ItemList> frequentItemsets, QList<SupportCount> frequentItemsetsSupportCounts, float minimumConfidence) {
     QList<AssociationRule> associationRules;
@@ -54,7 +61,10 @@ QList<AssociationRule> RuleMiner::generateAssociationRulesForFrequentItemset(Ite
 
         // Calculate the confidence of this rule.
         frequentItemsetSupportCount = FPGrowth::calculateSupportCountForFrequentItemset(frequentItemset);
-        antecedentSupportCount = frequentItemsetsSupportCounts[frequentItemsets.indexOf(antecedent)];
+        // Take advantage of precalculated frequent itemset support counts when
+        // they are available, and calculate the support count for the
+        // antecedent on-the-fly otherwise.
+        antecedentSupportCount = (frequentItemsetsSupportCounts.size() > 0) ? frequentItemsetsSupportCounts[frequentItemsets.indexOf(antecedent)] : FPGrowth::calculateSupportCountForFrequentItemset(antecedent);
         confidence = 1.0 * frequentItemsetSupportCount / antecedentSupportCount;
 
         // If the confidence is sufficiently high, we've found an association
@@ -84,9 +94,6 @@ QList<AssociationRule> RuleMiner::generateAssociationRulesForFrequentItemset(Ite
     return associationRules;
 }
 
-
-//------------------------------------------------------------------------------
-// Protected static methods.
 
 /**
  * Build the antecedent for this candidate consequent, which are all items in

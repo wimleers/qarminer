@@ -6,6 +6,7 @@
 #include "fpnode.h"
 #include "fptree.h"
 #include "fpgrowth.h"
+#include "intervaltransformer.h"
 #include "ruleminer.h"
 
 
@@ -16,6 +17,8 @@ int main(int argc, char *argv[]) {
     int duration;
     QList<ItemList> frequentItemsets;
     QList<SupportCount> frequentItemsetsSupportCounts;
+    ItemNQHash itemNamesAndQuantities;
+    QPair<QHash<ItemID, ItemName>, QHash<ItemID, QPair<Quantity, Quantity> > > intervalFrequentItemsetsMappings;
     QList<int> durations;
 
     QString filename;
@@ -51,6 +54,7 @@ int main(int argc, char *argv[]) {
     phaseTimer.start();
     fpgrowth->preprocessingPhase1();
     durations.append(phaseTimer.elapsed());
+    itemNamesAndQuantities = fpgrowth->getItemNQs();
     cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
@@ -88,6 +92,25 @@ int main(int argc, char *argv[]) {
     cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
 
 
+    // Stage 6.
+    cout << "  |- Calculating stage 4: transform frequent itemsets for interval rule generation" << endl;
+    phaseTimer.start();
+    QList<ItemList> intervalFrequentItemsets = frequentItemsets;
+    intervalFrequentItemsetsMappings = IntervalTransformer::transform(&intervalFrequentItemsets, itemNamesAndQuantities, minimumConfidence);
+    QHash<ItemID, ItemName> idNameMapping = intervalFrequentItemsetsMappings.first;
+    QHash<ItemID, QPair<Quantity, Quantity> > idQuantitiesMapping = intervalFrequentItemsetsMappings.second;
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
+
+    // Stage 7.
+    cout << "  |- Calculating stage 5: interval rule generation" << endl;
+    phaseTimer.start();
+    QList<SupportCount> empty;
+    QList<AssociationRule> intervalAssociationRules = RuleMiner::generateAssociationRules(intervalFrequentItemsets, empty, minimumConfidence);
+    durations.append(phaseTimer.elapsed());
+    cout << QString("    |- Duration: %1 ms.").arg(durations.last()) << endl;
+    qDebug() << intervalAssociationRules;
+
     // Actual processing time.
     duration = 0;
     for (int i = 1; i < durations.size(); i++)
@@ -102,7 +125,8 @@ int main(int argc, char *argv[]) {
 
     // Output rules of type A.
     cout << endl << "Rules of type A:" << endl;
-    ItemNQHash itemNamesAndQuantities = fpgrowth->getItemNQs();
+    if (associationRules.size() == 0)
+        cout << "\tNone." << endl;
     foreach (AssociationRule rule, associationRules) {
         // Prefix.
         cout << "\t";
@@ -131,6 +155,45 @@ int main(int argc, char *argv[]) {
             cout << itemNamesAndQuantities[item.id].name.toStdString().c_str();
             cout << "=";
             cout << itemNamesAndQuantities[item.id].quantity;
+        }
+        cout << "}";
+
+        // Confidence.
+        cout << " (conf=" << rule.confidence << ")" << endl;
+    }
+
+    // Output rules of types B & C.
+    cout << endl << "Rules of types B & C:" << endl;
+    if (intervalAssociationRules.size() == 0)
+        cout << "\tNone." << endl;
+    foreach (AssociationRule rule, intervalAssociationRules) {
+        // Prefix.
+        cout << "\t";
+
+        // Antecedent.
+        cout << "{";
+        for (int i = 0; i < rule.antecedent.size(); i++) {
+            if (i > 0)
+                cout << ", ";
+            Item item = rule.antecedent[i];
+            cout << idNameMapping[item.id].toStdString().c_str();
+            cout << " in ";
+            cout << "[" << idQuantitiesMapping[item.id].first << "," << idQuantitiesMapping[item.id].second << "]";
+        }
+        cout << "}";
+
+        // Arrow.
+        cout << " => ";
+
+        // Consequent;
+        cout << "{";
+        for (int i = 0; i < rule.consequent.size(); i++) {
+            if (i > 0)
+                cout << ", ";
+            Item item = rule.consequent[i];
+            cout << idNameMapping[item.id].toStdString().c_str();
+            cout << " in ";
+            cout << "[" << idQuantitiesMapping[item.id].first << "," << idQuantitiesMapping[item.id].second << "]";
         }
         cout << "}";
 

@@ -13,13 +13,15 @@ SOURCES += main.cpp \
     fptree.cpp \
     fpgrowth.cpp \
     typedefs.cpp \
-    ruleminer.cpp
+    ruleminer.cpp \
+    intervaltransformer.cpp
 HEADERS += arffparser.h \
     fpnode.h \
     fptree.h \
     fpgrowth.h \
     typedefs.h \
-    ruleminer.h
+    ruleminer.h \
+    intervaltransformer.h
 
 # Disable qDebug() output when in release mode.
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
@@ -31,11 +33,6 @@ CONFIG(debug, debug|release):DEFINES += DEBUG
 QMAKE_CXXFLAGS_RELEASE = -O3 \
     -funroll-loops \
     -fstrict-aliasing
-
 CONFIG += debug_and_release
-
- CONFIG(debug, debug|release) {
-     TARGET = DMP_debug
- } else {
-     TARGET = DMP
- }
+CONFIG(debug, debug|release):TARGET = DMP_debug
+else:TARGET = DMP
