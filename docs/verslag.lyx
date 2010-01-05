@@ -267,11 +267,19 @@ Bovendien heb ik ook het signal/slot mechanisme van Qt aangewend om geparste
 Om de performance te maximaliseren en geheugengebruik te minimaliseren,
  heb ik ervoor gekozen om telkens zo min mogelijk data door te geven.
  Zo wordt bijvoorbeeld voor iedere combinatie van een item name (ook wel
- attribute name genoemd) en een quantity een unieke item ID gegenereerd.
+ attribute name genoemd) en een quantity, een unieke item ID gegenereerd.
  In alle berekeningen wordt enkel naar de item ID gekeken.
  De mapping van item ID naar item name en quantity wordt bij het parsen
  van de data set opgeslagen en pas bij het tonen van de resultaten weer
  gebruikt.
+\end_layout
+
+\begin_layout Standard
+Om andere discrete datatypes te ondersteunen moet enkel de opgeslagen waarde
+ voor de mapping aangepast worden: in plaats van item ID naar item name
+ en quantity bijvoorbeeld item ID naar string.
+ Continuë data zou eerst gediscreteerd moeten worden, waarna hetzelfde van
+ toepassing is.
 \end_layout
 
 \begin_layout Standard
@@ -351,21 +359,60 @@ interpreteren
  zelf gekozen worden.
 \end_layout
 
-\begin_layout Section
-Tijds- en plaatscomplexiteit
+\begin_layout Subsubsection*
+FP-growth-tiny
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-TODO
-\end_layout
-
+Tijdens het schrijven van het verslag, weken nadat ik mijn FP-tree implementatie
+ had voltooid, stuitte ik toevallig op de paper 
+\emph on
+A Space Optimization for FP-Growth, Eray Özkural and Cevdet Aykanat, Department
+ of Computer Engineering, Bilkent University 06800 Ankara, Turkey
+\emph default
+, waarin zij een geoptimaliseerde versie van FP-growth voorstellen, die
+ ze FP-growth-tiny hebben gedoopt.
+ In plaats van complexe operaties uit te voeren op bomen, halen zij gewoon
+ paden uit de boom, stellen deze voor als transacties, en voegen deze in
+ in een nieuwe boom.
+ Dit is een stuk minder complex en daardoor sneller.
+ Dit is 
+\emph on
+precies
+\emph default
+ hoe ik het geïmplementeerd had! Ik vond het een triviale en logische optimalisa
+tie, die de implementatie zelfs vereenvoudigde.
+ Daarom vermeld ik overal 
+\begin_inset Quotes eld
 \end_inset
 
+FP-growth
+\begin_inset Quotes erd
+\end_inset
 
+, omdat ik niet realiseerde dat ik het algoritme zodanig anders had geïmplemente
+erd.
+\end_layout
+
+\begin_layout Standard
+Ik ben nog verder gegaan dan hen: zij slaan hun 
+\emph on
+symbolen
+\emph default
+ (die ik 
+\emph on
+item names
+\emph default
+ noem) op in iedere node, terwijl ik enkel een 16-bit int opsla (wat ik
+ een 
+\emph on
+item ID
+\emph default
+ noem).
+ In hun conclusie vermelden ze dat ze 2.4 keer minder geheugen nodig hebben
+ en 28.5% keer sneller zijn dan het originele FP-growth algoritme.
+ Hopelijk is dat voor mijn implementatie dan ook het geval — het geheugengebruik
+ zou zelfs nog beter moeten zijn.
 \end_layout
 
 \begin_layout Section
@@ -405,7 +452,8 @@ arffparser.cpp
 \family default
 : de zelf geschreven ARFF parser, die zeer beperkt is: enkel numerical attribute
 s worden ondersteund.
- Er zijn twee public methods: 
+ Placeholder values (vraagtekens) worden o Er zijn twee public methods:
+ 
 \family typewriter
 parseItemProperties()
 \family default
@@ -838,7 +886,325 @@ DMP.pro
 \end_layout
 
 \begin_layout Section
-Tests:
+Tijds- en plaatscomplexiteit
+\end_layout
+
+\begin_layout Standard
+Ik ga de tijds- en plaatscomplexiteit bekijken per fase:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+|- PREPROCESSING
+\end_layout
+
+\begin_layout Plain Layout
+  |- Preprocessing stage 1: parsing item names, quantities and support counts.
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 906 ms.
+\end_layout
+
+\begin_layout Plain Layout
+  |- Preprocessing stage 2: parsing transactions and building an FP-tree.
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 1846 ms.
+\end_layout
+
+\begin_layout Plain Layout
+|- CALCULATING
+\end_layout
+
+\begin_layout Plain Layout
+  |- Calculating stage 1: frequent itemset generation.
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 1 ms.
+\end_layout
+
+\begin_layout Plain Layout
+  |- Calculating stage 2: calculate support for frequent itemsets.
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 0 ms.
+\end_layout
+
+\begin_layout Plain Layout
+  |- Calculating stage 3: rule generation
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 0 ms.
+\end_layout
+
+\begin_layout Plain Layout
+  |- Calculating stage 4: transform frequent itemsets for interval rule
+ generation
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 1 ms.
+\end_layout
+
+\begin_layout Plain Layout
+  |- Calculating stage 5: interval rule generation
+\end_layout
+
+\begin_layout Plain Layout
+    |- Duration: 0 ms.
+\end_layout
+
+\begin_layout Plain Layout
+ACTUAL PROCESSING TIME: 1848 ms (excludes preprocesing stage 1)
+\end_layout
+
+\begin_layout Plain Layout
+TOTAL PROCESSING TIME: 2754 ms (all stages)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Gegeven volgende variabelen:
+\begin_inset Formula \begin{eqnarray*}
+T & = & aantal\, transacties\\
+t_{avg} & = & gemiddelde\, lengte\, van\, transactie\,(dus\, gemiddeld\, aantal\, items\, per\, transactie)\\
+t_{max} & = & maximale\, lengte\, transactie\\
+I & = & aantal\, unieke\, items\\
+F_{max} & = & aantal\, maximale\, frequent\, itemsets\\
+C & = & aantal\, unieke\, combinaties\, van\, item\, names\, in\, maximale\, frequent\, itemsets\\
+F_{merged} & = & aantal\, gemergede\, frequent\, itemsets\,(voor\, intervallen)\\
+F_{contiguous} & = & aantal\, gemergede\, frequent\, itemsets\, waarvan\, de\, intervallen\, aansluiten\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+preprocessing
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+preprocessing stage 1:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TC: 
+\begin_inset Formula $O(T\times t_{avg})$
+\end_inset
+
+, want alle transacties worden gelezen en voor iedere transactie alle unieke
+ items worden eruit gefilterd
+\end_layout
+
+\begin_layout Itemize
+PC: van ieder uniek item worden de details bijgehouden, dus 
+\begin_inset Formula $O(I)$
+\end_inset
+
+, wat enkel zeer hoog is indien alle items uniek zijn, maar dan is de data
+ sowieso niet geschikt voor data mining.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+preprocessing stage 2:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TC: 
+\begin_inset Formula $O(T\times t_{avg}\log t_{avg}\times\log t_{avg})$
+\end_inset
+
+, want alle transacties worden gelezen, iedere transactie wordt geoptimaliseerd
+ waarbij de grootste kost het sorteren van de support counts van de items
+ binnen die transactie is d.m.v.
+ quicksort (average case: 
+\begin_inset Formula $O(t_{avg}\log t_{avg})$
+\end_inset
+
+) en ten slotte wordt de geoptimaliseerde transactie ingevoegd in de FP-tree,
+ wat voor een bushy tree 
+\begin_inset Formula $O(\log t_{avg})$
+\end_inset
+
+ kost, maar in het slechtere geval 
+\begin_inset Formula $O(t_{avg})$
+\end_inset
+
+ kan kosten.
+\end_layout
+
+\begin_layout Itemize
+PC: de grootte van de FP-tree is 
+\begin_inset Formula $O(t_{max})$
+\end_inset
+
+ in het geval dat alle transacties zeer gelijkaardig zijn (best case) of
+ 
+\begin_inset Formula $O(T\times t_{max})$
+\end_inset
+
+ als iedere transactie allemaal unieke items heeft (worst case).
+ Gemiddeld zal het ongeveer 
+\begin_inset Formula $O(\log T\times t_{avg})$
+\end_inset
+
+ zijn (average case).
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+calculating: merk op dat in preprocessing stage 2 de grootte van de gebouwde
+ FP-tree sterk afhangt van de minimum support en dus ook van de dataset.
+ Als de resulterende boom zeer bushy is, dan zullen de calculating stages
+ zeer snel doorlopen kunnen worden.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+calculating stage 1:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TC: is ongeveer
+\begin_inset Formula $O(t_{avg}\,^{5}\times t_{avg}\log t_{avg})$
+\end_inset
+
+, want—details achterwege latende—er wordt over ieder uniek item in de huidige
+ boom (of dat nu de originele FP-tree is of een conditional FP-tree) geïtereerd
+ (
+\begin_inset Formula $O(t_{avg})$
+\end_inset
+
+), de prefix paths worden berekend (
+\begin_inset Formula $O(t_{avg}\,^{2})$
+\end_inset
+
+ en vervolgens gefilterd (
+\begin_inset Formula $O(t_{avg})$
+\end_inset
+
+), waarna een CFP-tree met het resultaat wordt opgebouwd (
+\begin_inset Formula $O(t_{avg}\log t_{avg}\times\log t_{avg})$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+PC: 
+\begin_inset Formula $O(F_{max})$
+\end_inset
+
+, want dat is net het resultaat.
+ Omdat tijdens de berekeningen een steeds kleinere boom wordt gegenereerd
+ voor een grotere frequent itemset, en die boom moet blijven bestaan tot
+ de berekening voor de grotere frequent itemset voltooid is, zijn er dus
+ in het slechtste geval zoveel bomen tegelijk in het geheugen als de langste
+ frequent itemset.
+ De exacte grootte van die bomen is onvoorspelbaar, maar feit is dat het
+ aantal nodes per boom monotoon vermindert net zoals de lengte van de frequent
+ itemset monotoon toeneemt.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+calculating stage 2:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TC: 
+\begin_inset Formula $O(F_{max}\times t_{avg})$
+\end_inset
+
+, want er moet over alle items in alle gevonden frequent itemsets geïtereerd
+ worden om de support counts van de frequent itemsets te berekenen
+\end_layout
+
+\begin_layout Itemize
+PC: 
+\begin_inset Formula $O(F_{max})$
+\end_inset
+
+, want er wordt één support count berekend per frequent itemset
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+calculating stage 3: standaard Apriori
+\end_layout
+
+\begin_layout Itemize
+calculating stage 4:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+TC: 
+\begin_inset Formula $O(F_{max}\times t_{avg}+C\times t_{avg}\,^{3}+C^{2}\times t_{avg}\,^{2}+F_{merged}\times t_{avg}\,^{2}+F_{contiguous}\times t_{avg})$
+\end_inset
+
+, want eerst worden frequent itemsets met dezelfde item names gezocht (
+\begin_inset Formula $O(F_{max}\times t_{avg})$
+\end_inset
+
+), hierna worden alle mogelijke combinaties gegenereerd (
+\begin_inset Formula $O(C\times t_{avg}\,^{3})$
+\end_inset
+
+), waarna voor de combinaties waarvoor overeenkomstige frequent itemsets
+ gevonden zijn, gemergede frequent itemsets gegenereerd worden (
+\begin_inset Formula $O(C^{2}\times t_{avg}\,^{2})$
+\end_inset
+
+), dan worden aaneensluitende intervallen gefilterd uit deze gemergede frequent
+ itemsets (
+\begin_inset Formula $O(F_{merged}\times t_{avg}\,^{2})$
+\end_inset
+
+) en ten slotte wordt een nieuwe item ID mapping gegenereerd (
+\begin_inset Formula $O(F_{contiguous}\times t_{avg})$
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+PC: 
+\begin_inset Formula $O(C\times F_{max}\times t_{avg}+F_{merged}+F_{contiguous})$
+\end_inset
+
+, voor uitleg: zie uitleg voor TC
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+calculating stage 5: standaard Apriori
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Tests
 \end_layout
 
 \begin_layout Itemize
@@ -849,10 +1215,12 @@ inline false
 status open
 
 \begin_layout Plain Layout
+
 ACTUAL PROCESSING TIME: 3 ms (excludes preprocesing stage 1)
 \end_layout
 
 \begin_layout Plain Layout
+
 TOTAL PROCESSING TIME: 4 ms (all stages)
 \end_layout
 
@@ -861,14 +1229,17 @@ TOTAL PROCESSING TIME: 4 ms (all stages)
 \end_layout
 
 \begin_layout Plain Layout
+
 Rules of type A:
 \end_layout
 
 \begin_layout Plain Layout
+
 	{BoughtI4=2, BoughtI5=5} => {BoughtI3=9} (conf=1)
 \end_layout
 
 \begin_layout Plain Layout
+
 	{BoughtI3=9, BoughtI5=5} => {BoughtI4=2} (conf=0.916667)
 \end_layout
 
@@ -877,10 +1248,12 @@ Rules of type A:
 \end_layout
 
 \begin_layout Plain Layout
+
 Rules of types B & C:
 \end_layout
 
 \begin_layout Plain Layout
+
 	None.
 \end_layout
 
@@ -952,6 +1325,7 @@ inline false
 status open
 
 \begin_layout Plain Layout
+
 @relation basket1
 \end_layout
 
@@ -960,30 +1334,37 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
+
 @attribute BoughtI1 numeric
 \end_layout
 
 \begin_layout Plain Layout
+
 @attribute BoughtI2 numeric
 \end_layout
 
 \begin_layout Plain Layout
+
 @data
 \end_layout
 
 \begin_layout Plain Layout
+
 5,2
 \end_layout
 
 \begin_layout Plain Layout
+
 6,1
 \end_layout
 
 \begin_layout Plain Layout
+
 8,4
 \end_layout
 
 \begin_layout Plain Layout
+
 9,5
 \end_layout
 
@@ -1100,8 +1481,8 @@ Er zijn twee build modes: release en debug.
  debug mode genereert een hoop output en gaat hoogstwaarschijnlijk irrelevant
  zijn bij de evaluatie.
  Om te builden is Qt vereist.
- Ik heb gewerkt met Qt 4.5, maar met oudere versies werkt het waarschijnlijk
- ook.
+ Ik heb gewerkt met Qt 4.5, maar het zou evenzeer moeten werken met oudere
+ en nieuwere versies, aangezien enkel basisfunctionaliteit wordt gebruikt.
 \end_layout
 
 \begin_layout Standard
