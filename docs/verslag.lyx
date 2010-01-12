@@ -899,75 +899,93 @@ inline false
 status open
 
 \begin_layout Plain Layout
+
 |- PREPROCESSING
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Preprocessing stage 1: parsing item names, quantities and support counts.
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 906 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Preprocessing stage 2: parsing transactions and building an FP-tree.
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 1846 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
 |- CALCULATING
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Calculating stage 1: frequent itemset generation.
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 1 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Calculating stage 2: calculate support for frequent itemsets.
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 0 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Calculating stage 3: rule generation
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 0 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Calculating stage 4: transform frequent itemsets for interval rule
  generation
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 1 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
   |- Calculating stage 5: interval rule generation
 \end_layout
 
 \begin_layout Plain Layout
+
     |- Duration: 0 ms.
 \end_layout
 
 \begin_layout Plain Layout
+
 ACTUAL PROCESSING TIME: 1848 ms (excludes preprocesing stage 1)
 \end_layout
 
 \begin_layout Plain Layout
+
 TOTAL PROCESSING TIME: 2754 ms (all stages)
 \end_layout
 
@@ -1040,7 +1058,7 @@ TC:
 \end_inset
 
 ) en ten slotte wordt de geoptimaliseerde transactie ingevoegd in de FP-tree,
- wat voor een bushy tree 
+ wat voor een dense tree 
 \begin_inset Formula $O(\log t_{avg})$
 \end_inset
 
@@ -1074,7 +1092,7 @@ PC: de grootte van de FP-tree is
 \begin_layout Itemize
 calculating: merk op dat in preprocessing stage 2 de grootte van de gebouwde
  FP-tree sterk afhangt van de minimum support en dus ook van de dataset.
- Als de resulterende boom zeer bushy is, dan zullen de calculating stages
+ Als de resulterende boom zeer dense is, dan zullen de calculating stages
  zeer snel doorlopen kunnen worden.
 \end_layout
 
