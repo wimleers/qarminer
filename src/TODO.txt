@@ -1,6 +1,0 @@
-- rule mining werkt nog niet, maar de code is wel al grotendeels af, nu nog de bugs vinden …
-   -> VERGEET DAAR VOORAL K>=M+1 NIET!
-- supportCount per item is ondersteund, maar amounts nog niet
-- eens amounts geïmplementeerd zijn, zijn regels van type A vanzelf geïmplementeerd
-- regels van type B en C zouden normaal enkel in het rule mining gedeelte codeveranderingen moeten vereisen
-- en natuurlijk nog van ARFFParser echt een parser maken...
