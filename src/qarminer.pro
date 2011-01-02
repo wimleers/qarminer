@@ -34,5 +34,5 @@ QMAKE_CXXFLAGS_RELEASE = -O3 \
     -funroll-loops \
     -fstrict-aliasing
 CONFIG += debug_and_release
-CONFIG(debug, debug|release):TARGET = DMP_debug
-else:TARGET = DMP
+CONFIG(debug, debug|release):TARGET = qarminer_debug
+else:TARGET = qarminer
