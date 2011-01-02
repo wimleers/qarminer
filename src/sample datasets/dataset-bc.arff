@@ -1,0 +1,11 @@
+@relation basket1
+
+@attribute BoughtI1 numeric
+@attribute BoughtI2 numeric
+@data
+5,2
+6,1
+8,4
+9,5
+
+
