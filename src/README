@@ -1,9 +1,11 @@
 How to build:
-  qmake DMP.pro
+  qmake qarminer.pro
   make release
 
+How to execute: execute without parameters and help information will be
+provided.
 
 Notes:
 - On Mac OS X, the qmake command will generate an XCode project by default
   instead of a Makefile. To generate a Makefile, use the following command:
-    qmake DMP.pro -spec macx-g++
+    qmake qarminer.pro -spec macx-g++
