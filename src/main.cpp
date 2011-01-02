@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         cerr << "Usage: DMP <inputfile> <minsup> <minconf>" << endl
              << "\t- inputfile must be a .arff file with numeric attributes" << endl
              << "\t- minsup must be a float (percentage)" << endl
-             << "\t- minconf must be a float (percentage)";
+             << "\t- minconf must be a float (percentage)" << endl;
 
 
         cerr.flush();
