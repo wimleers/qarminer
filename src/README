@@ -1,11 +1,109 @@
-How to build:
+How to build
+------------
   qmake qarminer.pro
   make release
-
-How to execute: execute without parameters and help information will be
-provided.
 
 Notes:
 - On Mac OS X, the qmake command will generate an XCode project by default
   instead of a Makefile. To generate a Makefile, use the following command:
     qmake qarminer.pro -spec macx-g++
+
+
+How to run
+----------
+Run without parameters and help information will be provided:
+  $ qarminer
+  Usage: DMP <inputfile> <minsup> <minconf>
+  	- inputfile must be a .arff file with numeric attributes
+  	- minsup must be a float (percentage)
+  	- minconf must be a float (percentage)
+
+
+How to interpret the results
+----------------------------
+Rules of "type A" are simple quantitative association rules, like this:
+  {BoughtI1=5} => {BoughtI4=3} (conf=x)
+  {BoughtI1=5, BoughtI2=7} => {BoughtI3=5} (conf=x)
+
+Rules of "type B and C" are more advanced quantitative association rules:
+  {BoughtI3 >= 5} => {BoughtI1 >= 3} (conf=x)
+  {BoughtI2 >= 5, BoughtI4 <= 3} => {BoughtI5 >= 1} (conf=x)
+
+Rules of type B and C are implemented  differently in qarminer: qarminer does
+not work with inequalities (which assume rules hold for a range like
+[x, inf[), but with exact ranges, for which actual proof was found in the data
+set.
+
+
+Sample datasets
+---------------
+Two sample datasets are included in the "sample datasets" directory.
+
+
+If you apply qarminer to the first dataset with a minimum support of 10% and a
+minimum confidence of 90%, you should get the following output:
+  $ qarminer dataset.arff 0.1 0.9
+  |- PREPROCESSING
+    |- Preprocessing stage 1: parsing item names, quantities and support counts.
+      |- Duration: 2 ms.
+    |- Preprocessing stage 2: parsing transactions and building an FP-tree.
+      |- Duration: 2 ms.
+  |- CALCULATING
+    |- Calculating stage 1: frequent itemset generation.
+      |- Duration: 0 ms.
+    |- Calculating stage 2: calculate support for frequent itemsets.
+      |- Duration: 0 ms.
+    |- Calculating stage 3: rule generation
+      |- Duration: 0 ms.
+    |- Calculating stage 4: transform frequent itemsets for interval rule generation
+      |- Duration: 0 ms.
+    |- Calculating stage 5: interval rule generation
+      |- Duration: 0 ms.
+  ACTUAL PROCESSING TIME: 2 ms (excludes preprocesing stage 1)
+  TOTAL PROCESSING TIME: 4 ms (all stages)
+
+  Rules of type A:
+  	{BoughtI4=2, BoughtI5=5} => {BoughtI3=9} (conf=1)
+  	{BoughtI3=9, BoughtI5=5} => {BoughtI4=2} (conf=0.916667)
+
+  Rules of types B & C:
+  	None.
+
+
+If you apply qarminer to the second dataset with a minimum support of 10% and
+a minimum confidence of 90%, you should get the following output:
+  $ qarminer dataset-bc.arff 0.1 0.9
+  |- PREPROCESSING
+    |- Preprocessing stage 1: parsing item names, quantities and support counts.
+      |- Duration: 1 ms.
+    |- Preprocessing stage 2: parsing transactions and building an FP-tree.
+      |- Duration: 0 ms.
+  |- CALCULATING
+    |- Calculating stage 1: frequent itemset generation.
+      |- Duration: 0 ms.
+    |- Calculating stage 2: calculate support for frequent itemsets.
+      |- Duration: 0 ms.
+    |- Calculating stage 3: rule generation
+      |- Duration: 0 ms.
+    |- Calculating stage 4: transform frequent itemsets for interval rule generation
+      |- Duration: 0 ms.
+    |- Calculating stage 5: interval rule generation
+      |- Duration: 0 ms.
+  ACTUAL PROCESSING TIME: 0 ms (excludes preprocesing stage 1)
+  TOTAL PROCESSING TIME: 1 ms (all stages)
+
+  Rules of type A:
+  	{BoughtI2=2} => {BoughtI1=5} (conf=1)
+  	{BoughtI1=5} => {BoughtI2=2} (conf=1)
+  	{BoughtI2=1} => {BoughtI1=6} (conf=1)
+  	{BoughtI1=6} => {BoughtI2=1} (conf=1)
+  	{BoughtI2=4} => {BoughtI1=8} (conf=1)
+  	{BoughtI1=8} => {BoughtI2=4} (conf=1)
+  	{BoughtI2=5} => {BoughtI1=9} (conf=1)
+  	{BoughtI1=9} => {BoughtI2=5} (conf=1)
+
+  Rules of types B & C:
+  	{BoughtI2 in [1,2]} => {BoughtI1 in [5,6]} (conf=1)
+  	{BoughtI1 in [5,6]} => {BoughtI2 in [1,2]} (conf=1)
+  	{BoughtI2 in [4,5]} => {BoughtI1 in [8,9]} (conf=1)
+  	{BoughtI1 in [8,9]} => {BoughtI2 in [4,5]} (conf=1)
